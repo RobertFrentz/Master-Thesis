@@ -8,7 +8,7 @@ import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 
-public class Deduplicator extends RichFlatMapFunction<Event, Event> {
+public class DeduplicationFunction extends RichFlatMapFunction<Event, Event> {
     ValueState<Boolean> keyHasBeenSeen;
 
     @Override

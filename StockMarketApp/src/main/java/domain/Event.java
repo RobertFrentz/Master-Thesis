@@ -2,26 +2,24 @@ package domain;
 
 import domain.enums.SecurityType;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Objects;
 
 public class Event {
     String id;
-    SecurityType securityType;
+    String securityType;
     double lastTradePrice;
-    LocalTime timeOfLastUpdate;
-    LocalDate DateOfLastTrade;
+    String timeOfLastUpdate;
+    String DateOfLastTrade;
 
     public Event() {
     }
 
-    public Event(String id, SecurityType securityType, double lastTradePrice, LocalTime timeOfLastUpdate, LocalDate dateOfLastTrade) {
+    public Event(String id, String securityType, double lastTradePrice, String timeOfLastUpdate, String dateOfLastTrade) {
         this.id = id;
         this.securityType = securityType;
         this.lastTradePrice = lastTradePrice;
         this.timeOfLastUpdate = timeOfLastUpdate;
-        this.DateOfLastTrade = dateOfLastTrade;
+        DateOfLastTrade = dateOfLastTrade;
     }
 
     public String getId() {
@@ -32,11 +30,11 @@ public class Event {
         this.id = id;
     }
 
-    public SecurityType getSecurityType() {
+    public String getSecurityType() {
         return securityType;
     }
 
-    public void setSecurityType(SecurityType securityType) {
+    public void setSecurityType(String securityType) {
         this.securityType = securityType;
     }
 
@@ -48,19 +46,19 @@ public class Event {
         this.lastTradePrice = lastTradePrice;
     }
 
-    public LocalTime getTimeOfLastUpdate() {
+    public String getTimeOfLastUpdate() {
         return timeOfLastUpdate;
     }
 
-    public void setTimeOfLastUpdate(LocalTime timeOfLastUpdate) {
+    public void setTimeOfLastUpdate(String timeOfLastUpdate) {
         this.timeOfLastUpdate = timeOfLastUpdate;
     }
 
-    public LocalDate getDateOfLastTrade() {
+    public String getDateOfLastTrade() {
         return DateOfLastTrade;
     }
 
-    public void setDateOfLastTrade(LocalDate dateOfLastTrade) {
+    public void setDateOfLastTrade(String dateOfLastTrade) {
         DateOfLastTrade = dateOfLastTrade;
     }
 
@@ -69,7 +67,7 @@ public class Event {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
-        return Double.compare(event.lastTradePrice, lastTradePrice) == 0 && Objects.equals(id, event.id) && securityType == event.securityType && Objects.equals(timeOfLastUpdate, event.timeOfLastUpdate) && Objects.equals(DateOfLastTrade, event.DateOfLastTrade);
+        return Double.compare(event.lastTradePrice, lastTradePrice) == 0 && Objects.equals(id, event.id) && Objects.equals(securityType, event.securityType) && Objects.equals(timeOfLastUpdate, event.timeOfLastUpdate) && Objects.equals(DateOfLastTrade, event.DateOfLastTrade);
     }
 
     @Override
@@ -81,10 +79,10 @@ public class Event {
     public String toString() {
         return "Event{" +
                 "id='" + id + '\'' +
-                ", securityType=" + securityType +
+                ", securityType='" + securityType + '\'' +
                 ", lastTradePrice=" + lastTradePrice +
-                ", timeOfLastUpdate=" + timeOfLastUpdate +
-                ", DateOfLastTrade=" + DateOfLastTrade +
+                ", timeOfLastUpdate='" + timeOfLastUpdate + '\'' +
+                ", DateOfLastTrade='" + DateOfLastTrade + '\'' +
                 '}';
     }
 }

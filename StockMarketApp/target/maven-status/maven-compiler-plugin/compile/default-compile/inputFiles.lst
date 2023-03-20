@@ -1,1 +1,9 @@
-C:\Dizertatie\StockMarketApp\src\main\java\org\example\DataStreamJob.java
+C:\Master-Thesis\StockMarketApp\src\main\java\domain\enums\SecurityType.java
+C:\Master-Thesis\StockMarketApp\src\main\java\domain\Event.java
+C:\Master-Thesis\StockMarketApp\src\main\java\domain\generators\EventsGenerator.java
+C:\Master-Thesis\StockMarketApp\src\main\java\window\functions\MyProcessWindowFunction.java
+C:\Master-Thesis\StockMarketApp\src\main\java\job\DataStreamJob.java
+C:\Master-Thesis\StockMarketApp\src\main\java\window\functions\DeduplicationFunction.java
+C:\Master-Thesis\StockMarketApp\src\main\java\window\functions\RandomEventSource.java
+C:\Master-Thesis\StockMarketApp\src\main\java\helpers\DateTimeCustomFormatter.java
+C:\Master-Thesis\StockMarketApp\src\main\java\window\functions\LastObservedPriceReduceFunction.java
