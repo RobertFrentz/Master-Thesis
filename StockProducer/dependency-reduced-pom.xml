@@ -16,7 +16,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>org.example.KafkaProducerExample</mainClass>
+              <mainClass>org.example.StockEventsKafkaProducer</mainClass>
             </manifest>
           </archive>
         </configuration>

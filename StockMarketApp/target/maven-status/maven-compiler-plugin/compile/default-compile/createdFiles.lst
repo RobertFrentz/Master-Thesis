@@ -1,0 +1,9 @@
+helpers\DateTimeCustomFormatter.class
+domain\enums\SecurityType.class
+window\functions\DeduplicationFunction.class
+domain\Event.class
+window\functions\LastObservedPriceReduceFunction.class
+window\functions\MyProcessWindowFunction.class
+window\functions\RandomEventSource.class
+domain\generators\EventsGenerator.class
+job\DataStreamJob.class

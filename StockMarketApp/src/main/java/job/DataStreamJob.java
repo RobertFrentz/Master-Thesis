@@ -1,24 +1,16 @@
 package job;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.Event;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.configuration.Configuration;
+import org.apache.flink.connector.base.DeliveryGuarantee;
+import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
+import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
-import window.functions.DeduplicationFunction;
-import window.functions.LastObservedPriceReduceFunction;
-import window.functions.RandomEventSource;
-
-import java.time.*;
-import java.util.ArrayList;
-import java.util.List;
 public class DataStreamJob {
 
     public static void main(String[] args) throws Exception {
@@ -29,22 +21,43 @@ public class DataStreamJob {
 
     private static void runJob() throws Exception {
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
+
         //environment.getConfig().setAutoWatermarkInterval(5L);
 
         //DataStreamSource<Event> events = environment
         //        .fromCollection(EventsGenerator.getDummyEvents());
 
-        KafkaSource<String> source = KafkaSource.<String>builder()
+        KafkaSource<String> kafkaSource = KafkaSource.<String>builder()
                 .setBootstrapServers("kafka:9092")
-                .setTopics("test_topic3")
+                .setTopics("trade-data")
                 .setStartingOffsets(OffsetsInitializer.earliest())
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
 
-        DataStream<String> dataStream = environment.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
+        KafkaSink<String> kafkaSink = KafkaSink.<String>builder()
+                .setBootstrapServers("kafka:9092")
+                .setRecordSerializer(KafkaRecordSerializationSchema.builder()
+                        .setTopicSelector(new KafkaDynamicTopicSelector())
+                        .setValueSerializationSchema(new SimpleStringSchema())
+                        .build()
+                )
+                .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+                .build();
 
-        dataStream.map(value -> "Receiving from Kafka : " + value)
-                .print();
+        ObjectMapper mapper = new ObjectMapper();
+
+        DataStream<Event> dataStream = environment
+                .fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source")
+                .map(json -> mapper.readValue(json, Event.class));
+
+//        dataStream.map(value -> "Receiving from Kafka : " + value)
+//                .print();
+
+        DataStream<String> processedStream = dataStream.map(Event::toString);
+
+        processedStream.sinkTo(kafkaSink);
+
+
 
 //        DataStream<Event> processedEvents = events
 //            .keyBy(Event::getId);

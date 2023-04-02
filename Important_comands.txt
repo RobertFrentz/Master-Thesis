@@ -1,0 +1,47 @@
+DOCKER COMMANDS
+
+docker network create stock-network
+
+Zookeeper:
+
+	docker run -d --name zookeeper --network stock-network zookeeper
+	
+	./bin/zkCli.sh -server localhost:2181
+	
+	ls /brokers/ids
+	
+	ls /brokers/topics
+	
+	get /brokers/ids/1001
+
+Kakfa:
+
+	docker run -d --name kafka --network stock-network -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092 confluentinc/cp-kafka
+	
+	docker exec -it kafka /bin/bash
+	
+	kafka-topics --create --topic my-topic-test --partitions 1 --replication-factor 1 --bootstrap-server localhost:9092
+	
+	kafka-topics --list --bootstrap-server localhost:9092
+	
+	docker run -it --rm --network stock-network confluentinc/cp-kafka /bin/kafka-console-producer --bootstrap-server kafka:9092 --topic test_topic3
+	docker run -it --rm --network stock-network confluentinc/cp-kafka /bin/kafka-console-consumer --from-beginning --bootstrap-server kafka:9092 --topic my-topic-test --partition 0
+
+	Custom Producer:
+	
+	docker cp C:\Master-Thesis\StockProducer\target\StockProducer-1.jar f7e229cf9b87:/usr/share/java/kafka/StockProducer-1.jar
+	docker cp C:/Users/Robert/Desktop/debs2022-gc-trading-day-08-11-21.csv f7e229cf9b87:/usr/share/file/debs2022-gc-trading-day-08-11-21.csv
+	java -jar /usr/share/java/kafka/StockProducer-1.jar
+	java -cp opt/StockProducer-1.jar org.example.KafkaProducerExample
+
+
+FLINK:
+	
+	docker run --name=jobmanager --network stock-network --publish 8081:8081 --env FLINK_PROPERTIES="jobmanager.rpc.address: jobmanager" flink:1.16.0-scala_2.12 jobmanager
+	
+	docker run --name=taskmanager1 --network stock-network --env FLINK_PROPERTIES="jobmanager.rpc.address: jobmanager" flink:1.16.0-scala_2.12 taskmanager
+	
+	./bin/flink run StockMarketApp-1.0-SNAPSHOT.jar
+
+	docker cp C:\Master-Thesis\StockMarketApp\target\StockMarketApp-1.0-SNAPSHOT.jar b1feac9ec317:/opt/flink/StockMarketApp-1.0-SNAPSHOT.jar
+	
