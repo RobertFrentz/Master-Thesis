@@ -1,8 +1,9 @@
 package domain;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Event {
+public class Event implements Serializable {
     String id;
     String securityType;
     double lastTradePrice;

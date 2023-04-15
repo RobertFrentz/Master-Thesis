@@ -24,8 +24,7 @@ Kakfa:
 	
 	kafka-topics --list --bootstrap-server localhost:9092
 	
-	kafka-topics --bootstrap-server localhost:9092 --topic trade-data --delete --if-exists
-	kafka-topics --bootstrap-server localhost:9092 --topic trade-trade --delete --if-exists
+	kafka-topics --bootstrap-server localhost:9092 --topic my-topic --delete --if-exists
 
 	
 	docker run -it --rm --network stock-network confluentinc/cp-kafka /bin/kafka-console-producer --bootstrap-server kafka:9092 --topic test_topic3

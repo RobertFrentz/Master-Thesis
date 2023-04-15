@@ -69,7 +69,7 @@ public class StockEventsKafkaProducer {
 
                 ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, value);
                 producer.send(record);
-                Thread.sleep(3000);
+                Thread.sleep(1000);
             }
 
         } catch (Exception e) {
