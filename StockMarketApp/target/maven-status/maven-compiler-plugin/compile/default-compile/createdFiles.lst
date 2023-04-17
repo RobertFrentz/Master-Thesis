@@ -1,15 +1,13 @@
 helpers\DateTimeCustomFormatter.class
 domain\EventResults.class
 domain\enums\SecurityType.class
-window\functions\DeduplicationFunction.class
 domain\EventDeserializationSchema.class
+window\functions\IndicatorsWindowFunction.class
 job\KafkaDynamicTopicSelector.class
 window\functions\LastObservedPriceReduceFunction.class
 job\DataStreamJob.class
 helpers\EventDateTimeHelper.class
-window\functions\EMAWindowFunction.class
 domain\enums\SmoothingFactors.class
 domain\Event.class
-window\functions\MyProcessWindowFunction.class
 window\functions\RandomEventSource.class
 domain\generators\EventsGenerator.class

@@ -5,20 +5,28 @@ import java.util.Objects;
 //TODO CREATE A EMA CLASS WITH THE FOLLOWING PROPERTIES: SYMBOL ID, QUERY WITH SMOOTHING FACTOR 38, QUERY WITH SMOOTHING FACTOR 100
 public class EventResults {
     String id;
+
+    double price;
+
     double EMA38;
 
     double EMA100;
+
+    double SMA2;
 
     String breakoutPattern;
 
     public EventResults() {
     }
 
-    public EventResults(String id, double EMA38, double EMA100, String breakoutPattern) {
+    public EventResults(String id, double price, double EMA38, double EMA100, double SMA2, String breakoutPattern) {
         this.id = id;
+        this.price = price;
         this.EMA38 = EMA38;
         this.EMA100 = EMA100;
         this.breakoutPattern = breakoutPattern;
+        this.SMA2 = SMA2;
+
     }
 
     public String getId() {
@@ -27,6 +35,14 @@ public class EventResults {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public double getEMA38() {
@@ -45,6 +61,14 @@ public class EventResults {
         this.EMA100 = EMA100;
     }
 
+    public double getSMA2() {
+        return SMA2;
+    }
+
+    public void setSMA2(double SMA2) {
+        this.SMA2 = SMA2;
+    }
+
     public String getBreakoutPattern() {
         return breakoutPattern;
     }
@@ -58,20 +82,22 @@ public class EventResults {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EventResults that = (EventResults) o;
-        return Double.compare(that.EMA38, EMA38) == 0 && Double.compare(that.EMA100, EMA100) == 0 && Objects.equals(id, that.id) && Objects.equals(breakoutPattern, that.breakoutPattern);
+        return Double.compare(that.price, price) == 0 && Double.compare(that.EMA38, EMA38) == 0 && Double.compare(that.EMA100, EMA100) == 0 && Double.compare(that.SMA2, SMA2) == 0 && Objects.equals(id, that.id) && Objects.equals(breakoutPattern, that.breakoutPattern);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, EMA38, EMA100, breakoutPattern);
+        return Objects.hash(id, price, EMA38, EMA100, SMA2, breakoutPattern);
     }
 
     @Override
     public String toString() {
         return "EventResults{" +
                 "id='" + id + '\'' +
+                ", price=" + price +
                 ", EMA38=" + EMA38 +
                 ", EMA100=" + EMA100 +
+                ", SMA2=" + SMA2 +
                 ", breakoutPattern='" + breakoutPattern + '\'' +
                 '}';
     }

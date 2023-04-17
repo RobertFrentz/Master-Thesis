@@ -1,11 +1,9 @@
 package job;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.Event;
 import domain.EventDeserializationSchema;
-import helpers.EventDateTimeHelper;
+import domain.EventResults;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
@@ -16,8 +14,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import window.functions.DeduplicationFunction;
-import window.functions.EMAWindowFunction;
+import window.functions.IndicatorsWindowFunction;
 import window.functions.LastObservedPriceReduceFunction;
 
 import java.time.*;
@@ -50,8 +47,8 @@ public class DataStreamJob {
         KafkaSink<String> kafkaSink = KafkaSink.<String>builder()
                 .setBootstrapServers("kafka:9092")
                 .setRecordSerializer(KafkaRecordSerializationSchema.builder()
-                                .setTopic("trade-trade")
-                        //.setTopicSelector(new KafkaDynamicTopicSelector())
+                                //.setTopic("trade-trade")
+                        .setTopicSelector(new KafkaDynamicTopicSelector())
                         .setValueSerializationSchema(new SimpleStringSchema())
                         .build()
                 )
@@ -64,13 +61,13 @@ public class DataStreamJob {
                 .fromSource(
                         kafkaSource,
                         WatermarkStrategy
-                                .<Event>forBoundedOutOfOrderness(Duration.ofSeconds(5))
-                                .withTimestampAssigner((event, timestamp) -> {
-                                    return EventDateTimeHelper.getDateTimeInMillis(event);
-                                    /*ZonedDateTime epoch = ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZonedDateTime.now().getZone());
-                                    ZonedDateTime dateTime = ZonedDateTime.of(epoch.toLocalDate(), time, epoch.getZone());
-                                    return dateTime.toInstant().toEpochMilli();*/
-                        }),
+                                .<Event>forBoundedOutOfOrderness(Duration.ofSeconds(5)),
+//                                .withTimestampAssigner((event, timestamp) -> {
+//                                    return EventDateTimeHelper.getDateTimeInMillis(event);
+//                                    /*ZonedDateTime epoch = ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+//                                    ZonedDateTime dateTime = ZonedDateTime.of(epoch.toLocalDate(), time, epoch.getZone());
+//                                    return dateTime.toInstant().toEpochMilli();*/
+//                        }),
                         "Kafka Source");
 
 //        dataStream.map(value -> "Receiving from Kafka : " + value)
@@ -88,7 +85,7 @@ public class DataStreamJob {
 //            .keyBy(Event::getId)
 //            .flatMap(new DeduplicationFunction());
 
-            Time windowSize = Time.seconds(20);
+            Time windowSize = Time.seconds(30);
 
 //            DataStream<String> processedEvents = events
 //                    .keyBy(Event::getId)
@@ -98,8 +95,8 @@ public class DataStreamJob {
         DataStream<String> processedEvents = events
                 .keyBy(Event::getId)
                 .window(TumblingEventTimeWindows.of(windowSize))
-                .reduce(new LastObservedPriceReduceFunction())
-                .map(Event::toString);
+                .reduce(new LastObservedPriceReduceFunction(), new IndicatorsWindowFunction())
+                .map(EventResults::toString);
 //
 //            processedEvents.print("Hello World");
 //

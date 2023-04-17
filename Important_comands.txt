@@ -29,7 +29,7 @@ Kakfa:
 
 	
 	docker run -it --rm --network stock-network confluentinc/cp-kafka /bin/kafka-console-producer --bootstrap-server kafka:9092 --topic test_topic3
-	docker run -it --rm --network stock-network confluentinc/cp-kafka /bin/kafka-console-consumer --from-beginning --bootstrap-server kafka:9092 --topic trade-data --partition 0
+	docker run -it --rm --network stock-network confluentinc/cp-kafka /bin/kafka-console-consumer --from-beginning --bootstrap-server kafka:9092 --topic trade-trade --partition 0
 
 	Custom Producer:
 	
