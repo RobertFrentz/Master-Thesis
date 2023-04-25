@@ -4,6 +4,9 @@ import bolt.ProcessingBolt;
 //import org.apache.kafka.clients.consumer.ConsumerConfig;
 //import org.apache.kafka.common.serialization.StringDeserializer;
 import domain.JsonEventDeserializer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.storm.StormSubmitter;
@@ -28,11 +31,11 @@ public class KafkaTopology {
         String topicName = "trade-data";
         KafkaSpoutConfig<String, String> kafkaSpoutConfig = KafkaSpoutConfig.builder(brokerUrl, topicName)
                 .setFirstPollOffsetStrategy(FirstPollOffsetStrategy.EARLIEST)
-                .setProp("group.id", "storm-group")
-                .setProp("default.api.timeout.ms", "600000")
-                .setProp("key.serializer", "org.apache.kafka.common.serialization.StringDeserializer")
-                .setProp("value.serializer", new JsonEventDeserializer())
-                .setProp("auto.offset.reset", "earliest")
+                .setProp(ConsumerConfig.GROUP_ID_CONFIG, "storm-group")
+                .setProp(ConsumerConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, "600000")
+                .setProp(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
+                .setProp(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonEventDeserializer.class)
+                .setProp(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
                 .build();
         KafkaSpout<String, String> kafkaSpout = new KafkaSpout<>(kafkaSpoutConfig);
 
@@ -41,13 +44,13 @@ public class KafkaTopology {
         // Set up the Kafka Bolt
         String outputTopicName = "storm-output-topic";
         Properties kafkaProps = new Properties();
-        kafkaProps.put("bootstrap.servers", brokerUrl);
+        kafkaProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerUrl);
         kafkaProps.put("acks", "1");
-        kafkaProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        kafkaProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        kafkaProps.put("key.serializer", StringSerializer.class);
+        kafkaProps.put("value.serializer", StringSerializer.class);
         KafkaBolt<String, String> kafkaBolt = new KafkaBolt<String, String>()
                 .withProducerProperties(kafkaProps)
-                .withTopicSelector(new DefaultTopicSelector(outputTopicName))
+                .withTopicSelector(new DynamicTopicSelector())
                 .withTupleToKafkaMapper(new FieldNameBasedTupleToKafkaMapper<String, String>("key", "value"));
 
         // Set up the Topology

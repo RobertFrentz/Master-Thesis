@@ -61,6 +61,3 @@ STORM:
 	docker cp C:\Master-Thesis\StockMartketAppStorm\target\StockMartketAppStorm-1.0-SNAPSHOT.jar nimbus:/usr/local/
 
 	storm jar /usr/local/StockMartketAppStorm-1.0-SNAPSHOT.jar topology.KafkaTopology
-
-
-storm-topic
