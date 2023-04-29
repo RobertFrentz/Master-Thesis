@@ -3,6 +3,8 @@ package topology;
 import bolt.ProcessingBolt;
 //import org.apache.kafka.clients.consumer.ConsumerConfig;
 //import org.apache.kafka.common.serialization.StringDeserializer;
+import bolt.WindowBolt;
+import domain.Event;
 import domain.JsonEventDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -16,9 +18,12 @@ import org.apache.storm.kafka.bolt.selector.DefaultTopicSelector;
 import org.apache.storm.kafka.spout.*;
 import org.apache.storm.kafka.bolt.*;
 import org.apache.storm.kafka.spout.KafkaSpout;
+import org.apache.storm.state.KeyValueState;
 import org.apache.storm.topology.*;
 import org.apache.storm.Config;
+import org.apache.storm.topology.base.BaseWindowedBolt;
 
+import java.time.Duration;
 import java.util.Properties;
 
 public class KafkaTopology {
@@ -50,17 +55,23 @@ public class KafkaTopology {
         kafkaProps.put("value.serializer", StringSerializer.class);
         KafkaBolt<String, String> kafkaBolt = new KafkaBolt<String, String>()
                 .withProducerProperties(kafkaProps)
-                .withTopicSelector(new DynamicTopicSelector())
-                .withTupleToKafkaMapper(new FieldNameBasedTupleToKafkaMapper<String, String>("key", "value"));
+                .withTopicSelector(new DefaultTopicSelector(outputTopicName))
+                .withTupleToKafkaMapper(new FieldNameBasedTupleToKafkaMapper<>("key", "value"));
 
         // Set up the Topology
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("kafka-spout", kafkaSpout);
-        builder.setBolt("processing-bolt", new ProcessingBolt()).shuffleGrouping("kafka-spout");
-        builder.setBolt("kafka-bolt", kafkaBolt).shuffleGrouping("processing-bolt");
+        //builder.setBolt("processing-bolt", new ProcessingBolt()).shuffleGrouping("kafka-spout");
+        builder.setBolt("window-bolt",
+                new WindowBolt()
+                        .withTumblingWindow(BaseWindowedBolt.Duration.seconds(20)))
+                .shuffleGrouping("kafka-spout");
+        builder.setBolt("kafka-bolt", kafkaBolt).shuffleGrouping("window-bolt");
 
         // Submit the Topology
         Config config = new Config();
+        config.put(Config.TOPOLOGY_BOLTS_MESSAGE_ID_FIELD_NAME, "__kafka_offset");
+        config.put(Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS, 360);
         config.setDebug(true);
         StormSubmitter.submitTopology("my-topology", config, builder.createTopology());
     }

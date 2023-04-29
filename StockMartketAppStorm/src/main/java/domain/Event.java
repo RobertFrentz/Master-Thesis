@@ -61,6 +61,13 @@ public class Event implements Serializable {
         DateOfLastTrade = dateOfLastTrade;
     }
 
+    public boolean isAfter(Event otherEvent){
+        final long event1Timestamp = helpers.EventDateTimeHelper.getDateTimeInMillis(this);
+        final long event2Timestamp = helpers.EventDateTimeHelper.getDateTimeInMillis(otherEvent);
+
+        return event1Timestamp >= event2Timestamp;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
