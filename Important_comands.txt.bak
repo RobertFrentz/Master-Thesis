@@ -30,7 +30,7 @@ Kakfa:
 	kafka-consumer-groups --bootstrap-server localhost:9092 --list
 	
 	docker run -it --rm --network stock-network confluentinc/cp-kafka /bin/kafka-console-producer --bootstrap-server kafka:9092 --topic test_topic3
-	docker run -it --rm --network stock-network confluentinc/cp-kafka /bin/kafka-console-consumer --from-beginning --bootstrap-server kafka:9092 --topic trade-trade --partition 0
+	docker run -it --rm --network stock-network confluentinc/cp-kafka /bin/kafka-console-consumer --from-beginning --bootstrap-server kafka:9092 --topic trade-data --partition 0
 
 	Custom Producer:
 	
@@ -61,3 +61,9 @@ STORM:
 	docker cp C:\Master-Thesis\StockMartketAppStorm\target\StockMartketAppStorm-1.0-SNAPSHOT.jar nimbus:/usr/local/
 
 	storm jar /usr/local/StockMartketAppStorm-1.0-SNAPSHOT.jar topology.KafkaTopology
+	
+	storm ui
+
+
+2MX.FR
+2ICEU.FR

@@ -1,5 +1,7 @@
 package domain;
 
+import helper.EventDateTimeHelper;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -62,8 +64,8 @@ public class Event implements Serializable {
     }
 
     public boolean isAfter(Event otherEvent){
-        final long event1Timestamp = helpers.EventDateTimeHelper.getDateTimeInMillis(this);
-        final long event2Timestamp = helpers.EventDateTimeHelper.getDateTimeInMillis(otherEvent);
+        final long event1Timestamp = EventDateTimeHelper.getDateTimeInMillis(this);
+        final long event2Timestamp = EventDateTimeHelper.getDateTimeInMillis(otherEvent);
 
         return event1Timestamp >= event2Timestamp;
     }

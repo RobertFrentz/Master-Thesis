@@ -7,10 +7,11 @@ import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.storm.state.KeyValueState;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
-import org.apache.storm.topology.base.BaseRichBolt;
+import org.apache.storm.topology.base.BaseStatefulBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
@@ -20,7 +21,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-public class ProcessingBolt extends BaseRichBolt {
+public class ProcessingBolt extends BaseStatefulBolt<KeyValueState<String, String>> {
+
+    public KeyValueState<String, String> state;
     private OutputCollector collector;
     private static final Logger LOG = LogManager.getLogger(ProcessingBolt.class);
     private AdminClient kafkaAdminClient;
@@ -37,8 +40,7 @@ public class ProcessingBolt extends BaseRichBolt {
         LOG.info("Reading message: " + key);
         LOG.info("Object: " + value);
 
-        // Perform any processing or transformations
-        //String processedMessage = processMessage(key);
+        LOG.info("Previous Event with id " + key + ": " + state.get(key));
 
         try {
             if(!topicAlreadyExists(key)){
@@ -50,13 +52,14 @@ public class ProcessingBolt extends BaseRichBolt {
 
         LOG.info("Created topic: " + key);
 
-        // Emit the processed message to the next bolt or sink
-        collector.emit(new Values(key, value.toString()));
+        state.put(key, value.toString());
+
+        collector.emit(tuple, new Values(key, value.toString()));
         collector.ack(tuple);
     }
 
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("key", "value"));
+        declarer.declare(new Fields("key", "value", "__anchor"));
     }
 
     private AdminClient createKafkaAdminClient(){
@@ -81,5 +84,10 @@ public class ProcessingBolt extends BaseRichBolt {
     public void cleanup() {
         super.cleanup();
         kafkaAdminClient.close();
+    }
+
+    @Override
+    public void initState(KeyValueState<String, String> state) {
+        this.state = state;
     }
 }

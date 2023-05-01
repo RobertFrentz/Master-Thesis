@@ -1,6 +1,5 @@
 package domain;
 
-import bolt.ProcessingBolt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.log4j.LogManager;
