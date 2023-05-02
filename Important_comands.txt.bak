@@ -54,7 +54,11 @@ STORM:
 
 	docker run -d --name nimbus --publish 8080:8080 --network stock-network -e NIMBUS_SEEDS=zookeeper -e STORM_UI_PORT=8080 storm storm nimbus
 	
+	docker run -d --name nimbus1 --publish 8080:8080 --network stock-network -v C:/Master-Thesis/storm.yaml:/conf/storm.yaml storm storm nimbus
+	
 	docker run -d --name supervisor --network stock-network -e NIMBUS_SEEDS=nimbus storm storm supervisor
+	
+	docker run -d --name supervisor1 --network stock-network -v C:/Master-Thesis:/conf/storm.yaml storm storm supervisor
 	
 	docker run -d --name worker --network stock-network -e NIMBUS_SEEDS=nimbus storm storm worker
 
@@ -67,7 +71,11 @@ STORM:
 
 GRAFANA:
 
-	docker run -d --name=grafana -p 3000:3000 grafana/grafana
+	docker run -d --name=grafana -p 3000:3000 --network stock-network grafana/grafana
+
+GRAPHITE:
+
+	docker run -d --name graphite --network stock-network -p 80:80 -p 2003-2004:2003-2004 -p 2023-2024:2023-2024 -p 8125:8125/udp -p 8126:8126 graphiteapp/graphite-statsd
 
 2MX.FR
 2ICEU.FR
