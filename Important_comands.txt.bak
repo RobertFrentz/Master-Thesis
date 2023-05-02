@@ -60,10 +60,15 @@ STORM:
 
 	docker cp C:\Master-Thesis\StockMartketAppStorm\target\StockMartketAppStorm-1.0-SNAPSHOT.jar nimbus:/usr/local/
 
-	storm jar /usr/local/StockMartketAppStorm-1.0-SNAPSHOT.jar topology.KafkaTopology
+	storm jar /usr/local/StockMartketAppStorm-1.0-SNAPSHOT.jar topology.KafkaTopology --workers=1 --tasks-kafka-spout=1 --tasks-window-bolt=1 --tasks-kafka-bolt=1 --executors-kafka-spout=1 --executors-window-bolt=1 --executors-kafka-bolt=1 --acks=1 --window-duration-seconds=20 --brokerUrl=kafka:9092
 	
 	storm ui
 
 
+GRAFANA:
+
+	docker run -d --name=grafana -p 3000:3000 grafana/grafana
+
 2MX.FR
 2ICEU.FR
+555060.ETR

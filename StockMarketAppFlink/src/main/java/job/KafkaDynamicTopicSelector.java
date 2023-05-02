@@ -16,6 +16,6 @@ public class KafkaDynamicTopicSelector implements TopicSelector<String> {
             topicName = matcher.group(1);
         }
 
-        return topicName + " queries";
+        return topicName;
     }
 }

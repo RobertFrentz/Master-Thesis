@@ -7,6 +7,6 @@ public class DynamicTopicSelector implements KafkaTopicSelector {
 
     @Override
     public String getTopic(Tuple tuple) {
-        return tuple.getStringByField("key") + " queries";
+        return tuple.getStringByField("key");
     }
 }

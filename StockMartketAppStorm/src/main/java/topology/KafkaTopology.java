@@ -25,10 +25,14 @@ public class KafkaTopology {
     private static final Logger LOG = LogManager.getLogger(KafkaTopology.class);
     public static void main(String[] args) throws Exception {
 
+        TopologyOptions options = new TopologyOptions(args);
+
+        LOG.info("The following parameters were received \n" + options + "\n");
+
         // Set up the Kafka Spout
-        String brokerUrl = "kafka:9092";
+        // String brokerUrl = "kafka:9092";
         String topicName = "trade-data";
-        KafkaSpoutConfig<String, String> kafkaSpoutConfig = KafkaSpoutConfig.builder(brokerUrl, topicName)
+        KafkaSpoutConfig<String, String> kafkaSpoutConfig = KafkaSpoutConfig.builder(options.brokerUrl, topicName)
                 .setFirstPollOffsetStrategy(FirstPollOffsetStrategy.EARLIEST)
                 .setEmitNullTuples(false)
                 .setRecordTranslator(new KafkaRecordTranslator())
@@ -43,8 +47,8 @@ public class KafkaTopology {
         // Set up the Kafka Bolt
         String outputTopicName = "storm-output-topic";
         Properties kafkaProps = new Properties();
-        kafkaProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerUrl);
-        kafkaProps.put("acks", "1");
+        kafkaProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, options.brokerUrl);
+        kafkaProps.put("acks", options.numOfAcks);
         kafkaProps.put("key.serializer", StringSerializer.class);
         kafkaProps.put("value.serializer", StringSerializer.class);
         KafkaBolt<String, String> kafkaBolt = new KafkaBolt<String, String>()
@@ -54,19 +58,25 @@ public class KafkaTopology {
 
         // Set up the Topology
         TopologyBuilder builder = new TopologyBuilder();
-        builder.setSpout("kafka-spout", kafkaSpout);
+        builder.setSpout("kafka-spout", kafkaSpout, options.numOfExecutorsForKafkaSpout)
+                .setNumTasks(options.numOfTasksForKafkaSpout);
         //builder.setBolt("processing-bolt", new ProcessingBolt()).shuffleGrouping("kafka-spout");
         builder.setBolt("window-bolt",
-                new WindowBolt()
-                        .withTumblingWindow(BaseWindowedBolt.Duration.seconds(20))
-                        .withMessageIdField("msgid"))
-                .shuffleGrouping("kafka-spout");
-        builder.setBolt("kafka-bolt", kafkaBolt).shuffleGrouping("window-bolt");
+                        new WindowBolt()
+                                .withTumblingWindow(BaseWindowedBolt.Duration.seconds(options.windowDuration))
+                                .withMessageIdField("msgid"),
+                        options.numOfExecutorsForWindowBolt)
+                .shuffleGrouping("kafka-spout")
+                .setNumTasks(options.numOfTasksForWindowBolt);
+        builder.setBolt("kafka-bolt", kafkaBolt, options.numOfExecutorsForKafkaBolt)
+                .shuffleGrouping("window-bolt")
+                .setNumTasks(options.numOfTasksForKafkaBolt);
 
         // Submit the Topology
         Config config = new Config();
         config.put(Config.TOPOLOGY_BOLTS_MESSAGE_ID_FIELD_NAME, "msgid");
-        config.put(Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS, 360);
+        config.put(Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS, options.windowDuration + 120);
+        config.setNumWorkers(options.numOfWorkers);
         config.setDebug(true);
         StormSubmitter.submitTopology("my-topology", config, builder.createTopology());
     }
