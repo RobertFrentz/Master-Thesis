@@ -78,6 +78,6 @@ public class KafkaTopology {
         config.put(Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS, options.windowDuration + 120);
         config.setNumWorkers(options.numOfWorkers);
         config.setDebug(true);
-        StormSubmitter.submitTopology("my-topology", config, builder.createTopology());
+        StormSubmitter.submitTopology("Stock Market Topology", config, builder.createTopology());
     }
 }

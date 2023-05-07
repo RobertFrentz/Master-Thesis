@@ -11,15 +11,11 @@ import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
-//TODO CREATE A EMA CLASS WITH THE FOLLOWING PROPERTIES: SYMBOL ID, QUERY WITH SMOOTHING FACTOR 38, QUERY WITH SMOOTHING FACTOR 100
-//TODO CHECK IF THIS IT WORKS
-
-
 public class IndicatorsWindowFunction extends ProcessWindowFunction<Event, EventResults, String, TimeWindow> {
     private ValueState<EventResults> previousResults;
 
     @Override
-    public void open(Configuration config) throws Exception {
+    public void open(Configuration config) {
         ValueStateDescriptor<EventResults> descriptor =
                 new ValueStateDescriptor<>("previousResults", Types.POJO(EventResults.class));
         previousResults = getRuntimeContext().getState(descriptor);

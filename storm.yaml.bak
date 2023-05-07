@@ -1,15 +1,14 @@
 storm.zookeeper.servers: [zookeeper]
-nimbus.seeds: [nimbus]
+nimbus.seeds: [nimbus1]
 storm.log.dir: "/logs"
 storm.local.dir: "/data"
 storm.metrics.reporters:
-  # Graphite Reporter
   - class: "org.apache.storm.metrics2.reporters.GraphiteStormReporter"
     daemons:
         - "supervisor"
         - "nimbus"
         - "worker"
-    report.period: 60
+    report.period: 30
     report.period.units: "SECONDS"
     graphite.host: "graphite"
-    graphite.port: 8126
+    graphite.port: 2003

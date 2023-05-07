@@ -8,7 +8,15 @@ storm.metrics.reporters:
         - "supervisor"
         - "nimbus"
         - "worker"
-    report.period: 60
+    report.period: 30
     report.period.units: "SECONDS"
     graphite.host: "graphite"
-    graphite.port: 8126
+    graphite.port: 2003
+    
+  - class: "org.apache.storm.metrics2.reporters.CsvStormReporter"
+    daemons:
+        - "supervisor"
+        - "nimbus"
+        - "worker"
+    argument:
+      - "file.path": "metrics.csv"

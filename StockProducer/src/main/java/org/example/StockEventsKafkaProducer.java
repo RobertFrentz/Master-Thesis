@@ -17,6 +17,9 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 public class StockEventsKafkaProducer {
     public static void main(String[] args) {
+        int delay = Integer.parseInt(args[0]);
+
+
         String topicName = "trade-data";
         String csvFile = "../../usr/share/file/debs2022-gc-trading-day-08-11-21.csv";
         String line = "";
@@ -69,7 +72,10 @@ public class StockEventsKafkaProducer {
 
                 ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, value);
                 producer.send(record);
-                Thread.sleep(1000);
+                if(delay != 0){
+                    Thread.sleep(delay);
+                }
+
             }
 
         } catch (Exception e) {

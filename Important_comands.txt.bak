@@ -36,19 +36,23 @@ Kakfa:
 	
 	docker cp C:\Master-Thesis\StockProducer\target\StockProducer-1.jar f7e229cf9b87:/usr/share/java/kafka/StockProducer-1.jar
 	docker cp C:/Users/Robert/Desktop/debs2022-gc-trading-day-08-11-21.csv f7e229cf9b87:/usr/share/file/debs2022-gc-trading-day-08-11-21.csv
-	java -jar /usr/share/java/kafka/StockProducer-1.jar
+	java -jar /usr/share/java/kafka/StockProducer-1.jar 1000
 	java -cp opt/StockProducer-1.jar org.example.KafkaProducerExample
 
 
 FLINK:
 	
-	docker run --name=jobmanager --network stock-network --publish 8081:8081 --env FLINK_PROPERTIES="jobmanager.rpc.address: jobmanager" flink:1.16.0-scala_2.12 jobmanager
+	docker run -d --name=jobmanager --network stock-network --publish 8081:8081 --env FLINK_PROPERTIES="jobmanager.rpc.address: jobmanager" flink:1.16.0-scala_2.12 jobmanager
 	
-	docker run --name=taskmanager1 --network stock-network --env FLINK_PROPERTIES="jobmanager.rpc.address: jobmanager" flink:1.16.0-scala_2.12 taskmanager
+	docker run -d --name=jobmanager1 --network stock-network --publish 8081:8081 --publish 9249:9249 --env FLINK_PROPERTIES="jobmanager.rpc.address: jobmanager1" flink:1.16.1-scala_2.12 jobmanager
+	
+	docker run -d --name=taskmanager1 --network stock-network --env FLINK_PROPERTIES="jobmanager.rpc.address: jobmanager" flink:1.16.0-scala_2.12 taskmanager
+	
+	docker run -d --name=taskmanager2 --network stock-network -p 9250:9249 --env FLINK_PROPERTIES="jobmanager.rpc.address: jobmanager1" flink:1.16.1-scala_2.12 taskmanager
 	
 	./bin/flink run StockMarketApp-1.0-SNAPSHOT.jar
 
-	docker cp C:\Master-Thesis\StockMarketApp\target\StockMarketApp-1.0-SNAPSHOT.jar b1feac9ec317:/opt/flink/StockMarketApp-1.0-SNAPSHOT.jar
+	docker cp C:\Master-Thesis\StockMarketAppFlink\target\StockMarketApp-1.0-SNAPSHOT.jar jobmanager1:/opt/flink/StockMarketApp-1.0-SNAPSHOT.jar
 	
 STORM:
 
@@ -58,7 +62,7 @@ STORM:
 	
 	docker run -d --name supervisor --network stock-network -e NIMBUS_SEEDS=nimbus storm storm supervisor
 	
-	docker run -d --name supervisor1 --network stock-network -v C:/Master-Thesis:/conf/storm.yaml storm storm supervisor
+	docker run -d --name supervisor1 --network stock-network -v C:/Master-Thesis/storm.yaml:/conf/storm.yaml storm storm supervisor
 	
 	docker run -d --name worker --network stock-network -e NIMBUS_SEEDS=nimbus storm storm worker
 
@@ -77,6 +81,36 @@ GRAPHITE:
 
 	docker run -d --name graphite --network stock-network -p 80:80 -p 2003-2004:2003-2004 -p 2023-2024:2023-2024 -p 8125:8125/udp -p 8126:8126 graphiteapp/graphite-statsd
 
+PROMETHEUS:
+
+	docker run -d --name prometheus -p 9090:9090 --network stock-network prom/prometheus
+
 2MX.FR
 2ICEU.FR
 555060.ETR
+
+  - job_name: 'docker'
+         # metrics_path defaults to '/metrics'
+         # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ['host.docker.internal:9323']
+      
+  - job_name: 'flink-job-manager'
+         # metrics_path defaults to '/metrics'
+         # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ['jobmanager1:9249']
+
+  - job_name: 'flink-task-manager'
+         # metrics_path defaults to '/metrics'
+         # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ['host.docker.internal:9323']
+	  
+	  
+	  
+metrics.reporters: prom
+metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory

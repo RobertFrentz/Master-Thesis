@@ -24,13 +24,16 @@ import java.time.*;
 public class DataStreamJob {
 
     public static void main(String[] args) throws Exception {
-        runJob();
-        //processDummyEvents();
-        //sampleCode();
+        runJob(args);
     }
 
-    private static void runJob() throws Exception {
+    private static void runJob(String[] args) throws Exception {
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
+
+        JobOptions options = new JobOptions(args);
+
+        System.out.println("Registering job with the following options");
+        System.out.println(options);
 
         //environment.getConfig().setAutoWatermarkInterval(5L);
 
@@ -47,7 +50,7 @@ public class DataStreamJob {
         KafkaSink<String> kafkaSink = KafkaSink.<String>builder()
                 .setBootstrapServers("kafka:9092")
                 .setRecordSerializer(KafkaRecordSerializationSchema.builder()
-                                //.setTopic("trade-trade")
+                                //.setTopic("flink-output-topic")
                         .setTopicSelector(new KafkaDynamicTopicSelector())
                         .setValueSerializationSchema(new SimpleStringSchema())
                         .build()
@@ -61,119 +64,29 @@ public class DataStreamJob {
                 .fromSource(
                         kafkaSource,
                         WatermarkStrategy
-                                .<Event>forBoundedOutOfOrderness(Duration.ofSeconds(5)),
+                                .forBoundedOutOfOrderness(Duration.ofSeconds(5)),
 //                                .withTimestampAssigner((event, timestamp) -> {
 //                                    return EventDateTimeHelper.getDateTimeInMillis(event);
 //                                    /*ZonedDateTime epoch = ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZonedDateTime.now().getZone());
 //                                    ZonedDateTime dateTime = ZonedDateTime.of(epoch.toLocalDate(), time, epoch.getZone());
 //                                    return dateTime.toInstant().toEpochMilli();*/
 //                        }),
-                        "Kafka Source");
+                        "Kafka Source")
+                .setParallelism(options.kafkaSourceParallelism);
 
-//        dataStream.map(value -> "Receiving from Kafka : " + value)
-//                .print();
+            Time windowSize = Time.seconds(options.windowTime);
 
-//        DataStream<String> processedStream = events.map(Event::toString);
-//
-//          processedStream.sinkTo(kafkaSink);
-
-
-
-//        DataStream<Event> processedEvents = events
-//            .keyBy(Event::getId);
-//            .reduce(new LastObservedPriceReduceFunction())
-//            .keyBy(Event::getId)
-//            .flatMap(new DeduplicationFunction());
-
-            Time windowSize = Time.seconds(30);
-
-//            DataStream<String> processedEvents = events
-//                    .keyBy(Event::getId)
-//                    .window(TumblingEventTimeWindows.of(windowSize))
-//                    .reduce(new LastObservedPriceReduceFunction(), new EMAWindowFunction())
-//                    .map(emas -> emas.get(0) + ", " + emas.get(1));
         DataStream<String> processedEvents = events
                 .keyBy(Event::getId)
                 .window(TumblingEventTimeWindows.of(windowSize))
                 .reduce(new LastObservedPriceReduceFunction(), new IndicatorsWindowFunction())
-                .map(EventResults::toString);
-//
-//            processedEvents.print("Hello World");
-//
-        processedEvents.sinkTo(kafkaSink);
-        environment.execute("Kafka Test");
+                .map(EventResults::toString)
+                .setParallelism(options.windowParallelism);
+
+        processedEvents.sinkTo(kafkaSink).setParallelism(options.kafkaSinkParallelism);
+        environment.execute("Stock Market Job");
     }
 }
-    /*private static void processDummyEvents() throws Exception {
-        try (StreamExecutionEnvironment environment = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration())) {
-            //environment.getConfig().setAutoWatermarkInterval(5L);
-
-            //DataStreamSource<Event> events = environment
-            //        .fromCollection(EventsGenerator.getDummyEvents());
-
-            DataStream<Event> events = environment
-                    .addSource(new RandomEventSource())
-                    .assignTimestampsAndWatermarks(
-                            WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ofSeconds(10))
-                                    .withTimestampAssigner((event, timestamp) -> {
-                                        LocalTime time = LocalTime.parse(event.getTimeOfLastUpdate());
-                                        ZonedDateTime epoch = ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZonedDateTime.now().getZone());
-                                        ZonedDateTime dateTime = ZonedDateTime.of(epoch.toLocalDate(), time, epoch.getZone());
-                                        return dateTime.toInstant().toEpochMilli();
-                                    })
-                                    .withIdleness(Duration.ofMinutes(1)));
-
-            //DataStream<Event> processedEvents = events
-            //.keyBy(Event::getId);
-            //.reduce(new LastObservedPriceReduceFunction())
-            //.keyBy(Event::getId)
-            //.flatMap(new DeduplicationFunction());
-
-            Time windowSize = Time.seconds(10);
-
-            DataStream<Event> processedEvents = events
-                    .keyBy(Event::getId)
-                    .window(TumblingEventTimeWindows.of(windowSize))
-                    .reduce(new LastObservedPriceReduceFunction())
-                    .keyBy(Event::getId)
-                    .flatMap(new DeduplicationFunction());
-
-            processedEvents.print("Hello World");
-
-            environment.execute("Dummy Events Processing");
-        }
-    }
-
-    private void sampleCode() throws Exception {
-        try (StreamExecutionEnvironment environment = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration())) {
-
-            DataStreamSource<Long> stream = environment.fromSequence(1, 10);
-            stream.filter(number -> number > 2).print("Hello World");
-
-            String filePath = "path/to/your/file";
-            DataStream<String> inputStream = environment.readTextFile(filePath);
-
-            List<Event> events = new ArrayList<>();
-            events.add(new Event());
-            DataStream<Event> dataStream = environment.fromCollection(events);
-
-//
-//			// define the tumbling window size
-//			Time windowSize = Time.seconds(10);
-//
-//			// apply tumbling window on the data stream
-//			DataStream<String> windowedStream = inputStream
-//					.window(TumblingProcessingTimeWindows.of(windowSize))
-//					.process(new MyProcessWindowFunction());
-//
-//			// print the processed data
-//			windowedStream.print();
-
-            // execute the Flink job
-            environment.execute("File Tumbling Window");
-        }
-    }
-}*/
 
 
 
