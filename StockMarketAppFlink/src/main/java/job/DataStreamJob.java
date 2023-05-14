@@ -1,5 +1,6 @@
 package job;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.Event;
 import domain.EventDeserializationSchema;
 import domain.EventResults;
@@ -19,8 +20,6 @@ import window.functions.LastObservedPriceReduceFunction;
 
 import java.time.*;
 
-//TODO TEST WITH NEW TIMESTAMPS THEN TEST WITH TOPIC DYNAMIC CREATING THEN TEST QUERIES
-
 public class DataStreamJob {
 
     public static void main(String[] args) throws Exception {
@@ -30,7 +29,11 @@ public class DataStreamJob {
     private static void runJob(String[] args) throws Exception {
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
 
+        // End-to-End latency tracking
+        environment.getConfig().setLatencyTrackingInterval(100);
+
         JobOptions options = new JobOptions(args);
+        ObjectMapper objectMapper = new ObjectMapper();
 
         System.out.println("Registering job with the following options");
         System.out.println(options);
@@ -41,16 +44,16 @@ public class DataStreamJob {
         //        .fromCollection(EventsGenerator.getDummyEvents());
 
         KafkaSource<Event> kafkaSource = KafkaSource.<Event>builder()
-                .setBootstrapServers("kafka:9092")
+                .setBootstrapServers(options.brokerUrl)
                 .setTopics("trade-data")
                 .setStartingOffsets(OffsetsInitializer.earliest())
                 .setValueOnlyDeserializer(new EventDeserializationSchema())
                 .build();
 
         KafkaSink<String> kafkaSink = KafkaSink.<String>builder()
-                .setBootstrapServers("kafka:9092")
+                .setBootstrapServers(options.brokerUrl)
                 .setRecordSerializer(KafkaRecordSerializationSchema.builder()
-                                //.setTopic("flink-output-topic")
+                        //.setTopic("flink-output-topic")
                         .setTopicSelector(new KafkaDynamicTopicSelector())
                         .setValueSerializationSchema(new SimpleStringSchema())
                         .build()
@@ -80,7 +83,7 @@ public class DataStreamJob {
                 .keyBy(Event::getId)
                 .window(TumblingEventTimeWindows.of(windowSize))
                 .reduce(new LastObservedPriceReduceFunction(), new IndicatorsWindowFunction())
-                .map(EventResults::toString)
+                .map(objectMapper::writeValueAsString)
                 .setParallelism(options.windowParallelism);
 
         processedEvents.sinkTo(kafkaSink).setParallelism(options.kafkaSinkParallelism);

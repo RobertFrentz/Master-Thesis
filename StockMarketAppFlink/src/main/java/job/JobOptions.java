@@ -8,13 +8,15 @@ public class JobOptions {
 
     int windowTime;
 
+    String brokerUrl;
+
     public JobOptions() {
     }
 
     @SuppressWarnings("DuplicateExpressions")
     public JobOptions(String[] args) throws Exception {
-        if(args.length != 3){
-            throw new Exception("The required number of parameters is 10");
+        if(args.length != 5){
+            throw new Exception("The required number of parameters is 5");
         }
 
         for(String arg: args){
@@ -27,8 +29,12 @@ public class JobOptions {
             else if(arg.matches("^--parallelism-kafka-sink=[1-9]$")){
                 kafkaSinkParallelism = Integer.parseInt(String.valueOf(arg.charAt(arg.length() - 1)));
             }
-            else if(arg.matches("^--window-time=[1-9]$")){
-                windowTime = Integer.parseInt(String.valueOf(arg.charAt(arg.length() - 1)));
+            else if(arg.matches("^--window-time=[0-9]+$")){
+                String seconds = arg.substring(arg.indexOf("=") + 1);
+                windowTime = Integer.parseInt(seconds);
+            }
+            else if(arg.matches("^--brokerUrl=[a-zA-Z]+:[0-9]+$")){
+                brokerUrl = arg.substring(arg.indexOf("=") + 1);
             }
             else {
                 throw new Exception("The following parameter is not valid: " + arg);
@@ -43,6 +49,7 @@ public class JobOptions {
                 ", kafkaSinkParallelism=" + kafkaSinkParallelism +
                 ", windowParallelism=" + windowParallelism +
                 ", windowTime=" + windowTime +
+                ", brokerUrl='" + brokerUrl + '\'' +
                 '}';
     }
 }

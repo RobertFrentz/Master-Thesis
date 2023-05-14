@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class KafkaDynamicTopicSelector implements TopicSelector<String> {
     @Override
     public String apply(String event) {
-        Pattern pattern = Pattern.compile("id='(.*?)'");
+        Pattern pattern = Pattern.compile("\"id\":\"(.*?)\"");
         Matcher matcher = pattern.matcher(event);
 
         String topicName = "unidentified-processed-data";

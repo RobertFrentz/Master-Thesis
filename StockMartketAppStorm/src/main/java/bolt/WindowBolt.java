@@ -1,6 +1,7 @@
 package bolt;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.Event;
 import domain.EventResults;
 import domain.JsonEventResultsSerializer;
@@ -25,6 +26,8 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, String>> {
+
+    private ObjectMapper objectMapper;
     public KeyValueState<String, String> state;
     private OutputCollector collector;
 
@@ -36,6 +39,7 @@ public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, S
     @Override
     public void prepare(Map<String, Object> topoConf, TopologyContext context, OutputCollector collector) {
         super.prepare(topoConf, context, collector);
+        this.objectMapper = new ObjectMapper();
         this.kafkaAdminClient = createKafkaAdminClient();
         this.collector = collector;
         this.serializer = new JsonEventResultsSerializer();
@@ -119,7 +123,12 @@ public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, S
                 throw new RuntimeException(e);
             }
 
-            collector.emit(tuple, new Values(results.getId(), results.toString()));
+            try {
+                collector.emit(tuple, new Values(results.getId(), objectMapper.writeValueAsString(results)));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+
             collector.ack(tuple);
         }
     }

@@ -1,10 +1,14 @@
-DOCKER COMMANDS
+DOCKER COMMANDS:
 
 docker network create stock-network
 
+Spring Boot:
+
+	docker run -d --name=springboot --network stock-network -p 8040:8040 spring-boot-docker:1
+
 Zookeeper:
 
-	docker run -d --name zookeeper --network stock-network zookeeper
+	docker run -d --name zookeeper1 --network stock-network zookeeper
 	
 	./bin/zkCli.sh -server localhost:2181
 	
@@ -16,26 +20,26 @@ Zookeeper:
 
 Kakfa:
 
-	docker run -d --name kafka --network stock-network -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092 confluentinc/cp-kafka
+	docker run -d --name kafka --network stock-network -p 9094:9094 -e KAFKA_ZOOKEEPER_CONNECT=zookeeper1:2181 -e KAFKA_ADVERTISED_LISTENERS=INSIDE://kafka:9092,OUTSIDE://localhost:9094 -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT -e KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE confluentinc/cp-kafka
 	
 	docker exec -it kafka /bin/bash
 	
-	kafka-topics --create --topic my-topic-test --partitions 1 --replication-factor 1 --bootstrap-server localhost:9092
+	kafka-topics --create --topic trade-data --partitions 1 --replication-factor 1 --bootstrap-server localhost:9092
 	
 	kafka-topics --list --bootstrap-server localhost:9092
 	
 	kafka-topics --bootstrap-server localhost:9092 --topic trade-data --delete --if-exists
-	kafka-topics --bootstrap-server localhost:9092 --topic trade-trade --delete --if-exists
+	kafka-topics --bootstrap-server localhost:9092 --topic ".*" --delete --if-exists
 
 	kafka-consumer-groups --bootstrap-server localhost:9092 --list
 	
-	docker run -it --rm --network stock-network confluentinc/cp-kafka /bin/kafka-console-producer --bootstrap-server kafka:9092 --topic test_topic3
+	docker run -it --rm --network stock-network confluentinc/cp-kafka /bin/kafka-console-producer --bootstrap-server kafka:9092 --topic trade-data
 	docker run -it --rm --network stock-network confluentinc/cp-kafka /bin/kafka-console-consumer --from-beginning --bootstrap-server kafka:9092 --topic trade-data --partition 0
 
 	Custom Producer:
 	
-	docker cp C:\Master-Thesis\StockProducer\target\StockProducer-1.jar f7e229cf9b87:/usr/share/java/kafka/StockProducer-1.jar
-	docker cp C:/Users/Robert/Desktop/debs2022-gc-trading-day-08-11-21.csv f7e229cf9b87:/usr/share/file/debs2022-gc-trading-day-08-11-21.csv
+	docker cp C:\Master-Thesis\StockProducer\target\StockProducer-1.jar 69dc7750eefd:/usr/share/java/kafka/StockProducer-1.jar
+	docker cp C:/Users/Robert/Desktop/debs2022-gc-trading-day-08-11-21.csv 69dc7750eefd:/usr/share/file/debs2022-gc-trading-day-08-11-21.csv
 	java -jar /usr/share/java/kafka/StockProducer-1.jar 1000
 	java -cp opt/StockProducer-1.jar org.example.KafkaProducerExample
 
@@ -50,7 +54,7 @@ FLINK:
 	
 	docker run -d --name=taskmanager2 --network stock-network -p 9250:9249 --env FLINK_PROPERTIES="jobmanager.rpc.address: jobmanager1" flink:1.16.1-scala_2.12 taskmanager
 	
-	./bin/flink run StockMarketApp-1.0-SNAPSHOT.jar
+	./bin/flink run StockMarketApp-1.0-SNAPSHOT.jar --window-time=30 --parallelism-kafka-source=1 --parallelism-window=1 --parallelism-kafka-sink=1 --brokerUrl=kafka:9092
 
 	docker cp C:\Master-Thesis\StockMarketAppFlink\target\StockMarketApp-1.0-SNAPSHOT.jar jobmanager1:/opt/flink/StockMarketApp-1.0-SNAPSHOT.jar
 	
@@ -66,7 +70,7 @@ STORM:
 	
 	docker run -d --name worker --network stock-network -e NIMBUS_SEEDS=nimbus storm storm worker
 
-	docker cp C:\Master-Thesis\StockMartketAppStorm\target\StockMartketAppStorm-1.0-SNAPSHOT.jar nimbus:/usr/local/
+	docker cp C:\Master-Thesis\StockMartketAppStorm\target\StockMartketAppStorm-1.0-SNAPSHOT.jar nimbus1:/usr/local/
 
 	storm jar /usr/local/StockMartketAppStorm-1.0-SNAPSHOT.jar topology.KafkaTopology --workers=1 --tasks-kafka-spout=1 --tasks-window-bolt=1 --tasks-kafka-bolt=1 --executors-kafka-spout=1 --executors-window-bolt=1 --executors-kafka-bolt=1 --acks=1 --window-duration-seconds=20 --brokerUrl=kafka:9092
 	

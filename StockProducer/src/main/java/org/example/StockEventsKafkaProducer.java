@@ -21,7 +21,8 @@ public class StockEventsKafkaProducer {
 
 
         String topicName = "trade-data";
-        String csvFile = "../../usr/share/file/debs2022-gc-trading-day-08-11-21.csv";
+//        String csvFile = "../../usr/share/file/debs2022-gc-trading-day-08-11-21.csv";
+        String csvFile = "C:/Users/Robert/Desktop/debs2022-gc-trading-day-08-11-21.csv";
         String line = "";
         String csvSplitBy = ",";
 
@@ -45,7 +46,8 @@ public class StockEventsKafkaProducer {
 
 
         Properties props = new Properties();
-        props.put("bootstrap.servers", "kafka:9092");
+//        props.put("bootstrap.servers", "kafka:9092");
+        props.put("bootstrap.servers", "localhost:9094");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
