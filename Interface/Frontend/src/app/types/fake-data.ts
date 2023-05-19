@@ -3,7 +3,7 @@ import { StockEvent } from './event.type';
 export function getDummyEvents(): StockEvent[] {
   const dummyData: StockEvent[] = [];
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 10; i++) {
     const stockEvent: StockEvent = {
       id: `Event`,
       price: Math.random() * 100, // Random price between 0 and 100

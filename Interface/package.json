@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@material/chips": "^14.0.0",
     "kafkajs": "^2.2.4"
   }
 }

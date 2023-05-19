@@ -1,4 +1,14 @@
-.example-form-field {
+.form-field {
   width: 200px;
   background-color: turquoise;
+}
+
+.header {
+  display: flex;
+  margin-left: 16px;
+  margin-top: 16px;
+
+  .chips-list{
+    margin-top: 10px;
+  }
 }

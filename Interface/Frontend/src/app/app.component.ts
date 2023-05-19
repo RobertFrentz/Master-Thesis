@@ -11,28 +11,76 @@ import { getDummyEvents } from './types/fake-data';
 })
 export class AppComponent {
   value: string = '';
-  currentChartData: any[] = [];
-  charts: Map<string, Chart> = new Map();
+  charts: Map<string, Data[]> = new Map();
+  lines: any[] = [];
+  currentChartData: Data[] = [];
+  breakoutPatterns: any[] = [];
 
   constructor(private kafkaService: KafkaService) {}
 
   ngOnInit(): void {
+    this.currentChartData = this.initializeChart();
+
     this.kafkaService.receiveMessages().subscribe((msg) => {
       this.updateChart(msg);
     });
+  }
 
-    this.currentChartData = this.initialTestChart();
+  select(topic: string): void {
+    this.currentChartData = this.charts.get(topic)!;
+  }
+
+  getBreakoutPattern(topic: string): void {
+    return this.breakoutPatterns.filter((pattern) => pattern.name === topic)[0]
+      .value;
   }
 
   subscribeToTopic() {
     const topic = this.value;
     this.kafkaService.subscribeToTopic(topic);
-    this.charts.set(topic, { name: topic, chartData: this.initializeChart() });
+    this.charts.set(topic, this.initializeChart());
   }
 
   private updateChart(msg: any): void {
     const event: StockEvent = JSON.parse(msg);
-    const chartData: Data[] = this.charts.get(event.id)!.chartData;
+
+    console.log(event);
+
+    if (this.charts.has(event.id)) {
+      let chartData: Data[] = this.charts.get(event.id)!;
+      chartData = this.updateValues(chartData, event);
+
+      this.charts.set(event.id, chartData);
+    } else {
+      let chartData = this.initializeChart();
+      chartData = this.updateValues(chartData, event);
+
+      this.charts.set(event.id, chartData);
+    }
+  }
+
+  private updateValues(chartData: Data[], event: StockEvent): Data[] {
+    chartData[0].series.push({
+      name: event.timeStamp,
+      value: `${event.price}`,
+    });
+
+    chartData[1].series.push({
+      name: event.timeStamp,
+      value: `${event.EMA38}`,
+    });
+
+    chartData[2].series.push({
+      name: event.timeStamp,
+      value: `${event.EMA100}`,
+    });
+
+    chartData[3].series.push({
+      name: event.timeStamp,
+      value: `${event.SMA2}`,
+    });
+
+    return chartData;
   }
 
   private initialTestChart(): any[] {
@@ -49,6 +97,10 @@ export class AppComponent {
     });
     const sma2 = dummyEvents.map((event) => {
       return { name: event.timeStamp, value: event.SMA2 };
+    });
+
+    this.breakoutPatterns = dummyEvents.map((event) => {
+      return { name: event.timeStamp, value: event.breakoutPattern };
     });
 
     console.log(prices);
@@ -76,7 +128,7 @@ export class AppComponent {
     ];
   }
 
-  private initializeChart(): any[] {
+  private initializeChart(): Data[] {
     return [
       {
         name: 'Price',

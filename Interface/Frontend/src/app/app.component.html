@@ -1,20 +1,19 @@
-<p>HELLOOOOO</p>
-<mat-form-field class="example-form-field">
-  <mat-label>Topic</mat-label>
-  <input matInput type="text" [(ngModel)]="value" />
-  <button
-    *ngIf="value"
-    matSuffix
-    mat-icon-button
-    aria-label="Clear"
-    (click)="value = ''"
-  >
-    <mat-icon>close</mat-icon>
-  </button>
-</mat-form-field>
-<button mat-button (click)="subscribeToTopic()">Basic</button>
+<div class="header">
+  <mat-form-field class="form-field">
+    <mat-label>Topic</mat-label>
+    <input matInput type="text" [(ngModel)]="value" />
+    <button *ngIf="value" matSuffix mat-icon-button (click)="value = ''">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+  <button mat-button (click)="subscribeToTopic()">Subscribe</button>
+  <mat-chip-list class="chips-list">
+    <ng-container *ngFor="let chart of charts | keyvalue">
+      <mat-chip (click)="select(chart.key)">{{ chart.key }}</mat-chip>
+    </ng-container>
+  </mat-chip-list>
+</div>
 <ngx-charts-line-chart
-  *ngIf="this.charts.keys.length === 0"
   [results]="currentChartData"
   [xAxis]="true"
   [yAxis]="true"
@@ -28,6 +27,19 @@
   [yAxis]="true"
   [timeline]="false"
   [tooltipDisabled]="false"
-  [view]="[1920,800]"
+  [view]="[1920, 800]"
+  [trimXAxisTicks]="true"
+  [trimYAxisTicks]="true"
+  [maxXAxisTickLength]="4"
+  [showRefLines]="true"
+  [referenceLines]="lines"
 >
+  <ng-template #seriesTooltipTemplate let-model="model">
+    <div class="tooltip">
+      <div *ngFor="let row of model">
+        {{ row.series + ": " + row.value }}
+      </div>
+      {{ getBreakoutPattern(model[0].name) }}
+    </div>
+  </ng-template>
 </ngx-charts-line-chart>
