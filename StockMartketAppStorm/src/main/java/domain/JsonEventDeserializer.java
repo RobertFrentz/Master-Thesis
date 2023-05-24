@@ -25,7 +25,7 @@ public class JsonEventDeserializer implements Deserializer<Event> {
     public Event deserialize(String topic, byte[] data) {
         try {
             String json = new String(data, StandardCharsets.UTF_8);
-            LOG.info("Json: " + json);
+            //LOG.info("Json: " + json);
             return objectMapper.readValue(json, Event.class);
         } catch (Exception e) {
             throw new RuntimeException("Failed to deserialize JSON data", e);

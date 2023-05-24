@@ -42,7 +42,7 @@ public class KafkaWebSocketHandler extends TextWebSocketHandler {
                             continue;
                         }
 
-                        records = kafkaConsumer.poll(Duration.ofMillis(1000));
+                        records = kafkaConsumer.poll(Duration.ofMillis(10000));
                     }
                     for (ConsumerRecord<String, String> record : records) {
                         for (WebSocketSession session : sessions.keySet()) {

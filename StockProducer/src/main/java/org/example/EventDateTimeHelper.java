@@ -1,6 +1,4 @@
-package helpers;
-
-import domain.Event;
+package org.example;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

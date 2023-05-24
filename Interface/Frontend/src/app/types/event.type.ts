@@ -1,9 +1,9 @@
 export interface StockEvent {
   id: string;
   price: number;
-  EMA38: number;
-  EMA100: number;
-  SMA2: number;
+  ema38: number;
+  ema100: number;
+  sma2: number;
   breakoutPattern: string;
   timeStamp: string;
 }

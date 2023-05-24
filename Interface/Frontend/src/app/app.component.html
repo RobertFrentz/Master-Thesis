@@ -14,6 +14,7 @@
   </mat-chip-list>
 </div>
 <ngx-charts-line-chart
+  *ngIf="charts.size > 0"
   [results]="currentChartData"
   [xAxis]="true"
   [yAxis]="true"
@@ -30,7 +31,7 @@
   [view]="[1920, 800]"
   [trimXAxisTicks]="true"
   [trimYAxisTicks]="true"
-  [maxXAxisTickLength]="4"
+  [maxXAxisTickLength]="12"
   [showRefLines]="true"
   [referenceLines]="lines"
 >

@@ -14,6 +14,7 @@ public class EventDeserializationSchema implements DeserializationSchema<Event> 
     @Override
     public Event deserialize(byte[] bytes) throws IOException {
         String json = new String(bytes, StandardCharsets.UTF_8);
+        //System.out.println("Here is a json " + json);
         return mapper.readValue(json, Event.class);
     }
 

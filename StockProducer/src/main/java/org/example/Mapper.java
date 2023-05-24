@@ -1,5 +1,10 @@
 package org.example;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +24,8 @@ public class Mapper {
 
     public static Event mapEventFrom(EventCSV eventCSV)
     {
-        return new Event(eventCSV.ID, eventCSV.SecType, eventCSV.Last, eventCSV.TradingTime, eventCSV.TradingDate);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+        LocalTime time = LocalTime.parse(eventCSV.getTradingTime(), formatter);
+        return new Event(eventCSV.ID, eventCSV.SecType, eventCSV.Last, time.toString(), eventCSV.TradingDate);
     }
 }

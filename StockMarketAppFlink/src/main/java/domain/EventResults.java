@@ -16,17 +16,19 @@ public class EventResults {
 
     String breakoutPattern;
 
+    String timeStamp;
+
     public EventResults() {
     }
 
-    public EventResults(String id, double price, double EMA38, double EMA100, double SMA2, String breakoutPattern) {
+    public EventResults(String id, double price, double EMA38, double EMA100, double SMA2, String breakoutPattern, String timeStamp) {
         this.id = id;
         this.price = price;
         this.EMA38 = EMA38;
         this.EMA100 = EMA100;
-        this.breakoutPattern = breakoutPattern;
         this.SMA2 = SMA2;
-
+        this.breakoutPattern = breakoutPattern;
+        this.timeStamp = timeStamp;
     }
 
     public String getId() {
@@ -77,17 +79,25 @@ public class EventResults {
         this.breakoutPattern = breakoutPattern;
     }
 
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EventResults that = (EventResults) o;
-        return Double.compare(that.price, price) == 0 && Double.compare(that.EMA38, EMA38) == 0 && Double.compare(that.EMA100, EMA100) == 0 && Double.compare(that.SMA2, SMA2) == 0 && Objects.equals(id, that.id) && Objects.equals(breakoutPattern, that.breakoutPattern);
+        return Double.compare(that.price, price) == 0 && Double.compare(that.EMA38, EMA38) == 0 && Double.compare(that.EMA100, EMA100) == 0 && Double.compare(that.SMA2, SMA2) == 0 && Objects.equals(id, that.id) && Objects.equals(breakoutPattern, that.breakoutPattern) && Objects.equals(timeStamp, that.timeStamp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, price, EMA38, EMA100, SMA2, breakoutPattern);
+        return Objects.hash(id, price, EMA38, EMA100, SMA2, breakoutPattern, timeStamp);
     }
 
     @Override
@@ -99,6 +109,7 @@ public class EventResults {
                 ", EMA100=" + EMA100 +
                 ", SMA2=" + SMA2 +
                 ", breakoutPattern='" + breakoutPattern + '\'' +
+                ", timeStamp='" + timeStamp + '\'' +
                 '}';
     }
 }
