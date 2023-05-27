@@ -17,10 +17,13 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
+import org.apache.kafka.common.TopicPartition;
 import window.functions.IndicatorsWindowFunction;
 import window.functions.LastObservedPriceReduceFunction;
 
 import java.time.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DataStreamJob {
 
@@ -45,9 +48,15 @@ public class DataStreamJob {
         //DataStreamSource<Event> events = environment
         //        .fromCollection(EventsGenerator.getDummyEvents());
 
+
+        TopicPartition topicPartition = new TopicPartition("trade-data", 1);
+        Set<TopicPartition> partitions = new HashSet<>();
+        partitions.add(topicPartition);
+
         KafkaSource<Event> kafkaSource = KafkaSource.<Event>builder()
                 .setBootstrapServers(options.brokerUrl)
-                .setTopics("trade-data")
+                //.setTopics("trade-data")
+                .setPartitions(partitions)
                 .setStartingOffsets(OffsetsInitializer.earliest())
                 .setValueOnlyDeserializer(new EventDeserializationSchema())
                 .build();
@@ -55,8 +64,8 @@ public class DataStreamJob {
         KafkaSink<String> kafkaSink = KafkaSink.<String>builder()
                 .setBootstrapServers(options.brokerUrl)
                 .setRecordSerializer(KafkaRecordSerializationSchema.builder()
-                        //.setTopic("flink-output-topic")
-                        .setTopicSelector(new KafkaDynamicTopicSelector())
+                        .setTopic("flink-output-topic")
+                        //.setTopicSelector(new KafkaDynamicTopicSelector())
                         .setValueSerializationSchema(new SimpleStringSchema())
                         .setKeySerializationSchema(new SimpleStringSchema())
                         .build()

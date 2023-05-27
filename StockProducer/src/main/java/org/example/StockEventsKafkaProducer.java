@@ -20,7 +20,7 @@ public class StockEventsKafkaProducer {
 
         String topicName = "trade-data";
 //        String csvFile = "../../usr/share/file/debs2022-gc-trading-day-08-11-21.csv";
-        String csvFile = "C:/Users/Robert/Downloads/output08-copy-Copy.csv";
+        String csvFile = "C:/Users/Robert/Downloads/output08-copy.csv";
         String line = "";
         String csvSplitBy = ",";
 
@@ -77,8 +77,10 @@ public class StockEventsKafkaProducer {
 //                    }
 
                     ProducerRecord<String, String> record = new ProducerRecord<>(topicName, 0, timestamp, key, value);
+                    ProducerRecord<String, String> record2 = new ProducerRecord<>(topicName, 1, timestamp, key, value);
                     //ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, value);
                     producer.send(record);
+                    producer.send(record2);
                     if(delay != 0){
                         Thread.sleep(delay);
                     }
