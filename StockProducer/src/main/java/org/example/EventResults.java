@@ -1,9 +1,9 @@
-package domain;
+package org.example;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-//TODO CREATE A EMA CLASS WITH THE FOLLOWING PROPERTIES: SYMBOL ID, QUERY WITH SMOOTHING FACTOR 38, QUERY WITH SMOOTHING FACTOR 100
-public class EventResults {
+public class EventResults implements Serializable {
     String id;
 
     double price;
@@ -17,8 +17,6 @@ public class EventResults {
     String breakoutPattern;
 
     String timeStamp;
-
-    Long processingTime;
 
     public EventResults() {
     }
@@ -89,25 +87,17 @@ public class EventResults {
         this.timeStamp = timeStamp;
     }
 
-    public Long getProcessingTime() {
-        return processingTime;
-    }
-
-    public void setProcessingTime(Long processingTime) {
-        this.processingTime = processingTime;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EventResults that = (EventResults) o;
-        return Double.compare(that.price, price) == 0 && Double.compare(that.EMA38, EMA38) == 0 && Double.compare(that.EMA100, EMA100) == 0 && Double.compare(that.SMA2, SMA2) == 0 && Objects.equals(id, that.id) && Objects.equals(breakoutPattern, that.breakoutPattern) && Objects.equals(timeStamp, that.timeStamp) && Objects.equals(processingTime, that.processingTime);
+        return Double.compare(that.price, price) == 0 && Double.compare(that.EMA38, EMA38) == 0 && Double.compare(that.EMA100, EMA100) == 0 && Double.compare(that.SMA2, SMA2) == 0 && Objects.equals(id, that.id) && Objects.equals(breakoutPattern, that.breakoutPattern) && Objects.equals(timeStamp, that.timeStamp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, price, EMA38, EMA100, SMA2, breakoutPattern, timeStamp, processingTime);
+        return Objects.hash(id, price, EMA38, EMA100, SMA2, breakoutPattern, timeStamp);
     }
 
     @Override
@@ -120,7 +110,7 @@ public class EventResults {
                 ", SMA2=" + SMA2 +
                 ", breakoutPattern='" + breakoutPattern + '\'' +
                 ", timeStamp='" + timeStamp + '\'' +
-                ", processingTime=" + processingTime +
                 '}';
     }
 }
+

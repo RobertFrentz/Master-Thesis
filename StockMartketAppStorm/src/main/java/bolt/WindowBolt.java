@@ -101,6 +101,7 @@ public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, S
 
             results.setId(key);
             results.setPrice(event.getLastTradePrice());
+            results.setTimeStamp(event.getTimeOfLastUpdate());
 
             computeEMA(event, results, previousResults);
             computeSMA(event, results, previousResults);
@@ -124,7 +125,12 @@ public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, S
 //            }
 
             try {
-                collector.emit(tuple, new Values(results.getId(), objectMapper.writeValueAsString(results)));
+                collector.emit(
+                        tuple,
+                        new Values(
+                                results.getId(),
+                                objectMapper.writeValueAsString(results),
+                                tuple.getValueByField("processingTime")));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -136,7 +142,7 @@ public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, S
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         super.declareOutputFields(declarer);
-        declarer.declare(new Fields("key", "value"));
+        declarer.declare(new Fields("key", "value", "processingTime"));
     }
 
     @Override

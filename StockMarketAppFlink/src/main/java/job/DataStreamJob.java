@@ -3,8 +3,7 @@ package job;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.Event;
 import domain.EventDeserializationSchema;
-import domain.EventResults;
-import helpers.EventDateTimeHelper;
+import helpers.CustomRichMapper;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.connector.base.DeliveryGuarantee;
@@ -16,7 +15,6 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
 import org.apache.kafka.common.TopicPartition;
 import window.functions.IndicatorsWindowFunction;
 import window.functions.LastObservedPriceReduceFunction;
@@ -49,7 +47,7 @@ public class DataStreamJob {
         //        .fromCollection(EventsGenerator.getDummyEvents());
 
 
-        TopicPartition topicPartition = new TopicPartition("trade-data", 1);
+        TopicPartition topicPartition = new TopicPartition("trade-data", 0);
         Set<TopicPartition> partitions = new HashSet<>();
         partitions.add(topicPartition);
 
@@ -64,8 +62,8 @@ public class DataStreamJob {
         KafkaSink<String> kafkaSink = KafkaSink.<String>builder()
                 .setBootstrapServers(options.brokerUrl)
                 .setRecordSerializer(KafkaRecordSerializationSchema.builder()
-                        .setTopic("flink-output-topic")
-                        //.setTopicSelector(new KafkaDynamicTopicSelector())
+                        //.setTopic("flink-output-topic")
+                        .setTopicSelector(new KafkaDynamicTopicSelector())
                         .setValueSerializationSchema(new SimpleStringSchema())
                         .setKeySerializationSchema(new SimpleStringSchema())
                         .build()
@@ -95,7 +93,9 @@ public class DataStreamJob {
                 .map(objectMapper::writeValueAsString);
 
 
-        processedEvents.sinkTo(kafkaSink).setParallelism(options.kafkaSinkParallelism);
+        processedEvents
+                .map(new CustomRichMapper())
+                .sinkTo(kafkaSink).setParallelism(options.kafkaSinkParallelism);
         environment.execute("Stock Market Job");
     }
 }

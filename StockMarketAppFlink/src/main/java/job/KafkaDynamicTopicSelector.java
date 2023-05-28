@@ -12,7 +12,7 @@ public class KafkaDynamicTopicSelector implements TopicSelector<String> {
         Matcher matcher = pattern.matcher(event);
 
         String topicName = "unidentified-processed-data";
-        if (matcher.find()) {
+        if (matcher.find() && (matcher.group(1).equals("IEBBB.FR") || matcher.group(1).equals("IUIFL.FR"))) {
             topicName = matcher.group(1);
         }
 

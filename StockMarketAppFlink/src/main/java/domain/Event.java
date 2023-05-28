@@ -10,6 +10,8 @@ public class Event implements Serializable {
     String timeOfLastUpdate;
     String DateOfLastTrade;
 
+    Long processingTime;
+
     public Event() {
     }
 
@@ -61,17 +63,25 @@ public class Event implements Serializable {
         DateOfLastTrade = dateOfLastTrade;
     }
 
+    public Long getProcessingTime() {
+        return processingTime;
+    }
+
+    public void setProcessingTime(Long processingTime) {
+        this.processingTime = processingTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
-        return Double.compare(event.lastTradePrice, lastTradePrice) == 0 && Objects.equals(id, event.id) && Objects.equals(securityType, event.securityType) && Objects.equals(timeOfLastUpdate, event.timeOfLastUpdate) && Objects.equals(DateOfLastTrade, event.DateOfLastTrade);
+        return Double.compare(event.lastTradePrice, lastTradePrice) == 0 && Objects.equals(id, event.id) && Objects.equals(securityType, event.securityType) && Objects.equals(timeOfLastUpdate, event.timeOfLastUpdate) && Objects.equals(DateOfLastTrade, event.DateOfLastTrade) && Objects.equals(processingTime, event.processingTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, securityType, lastTradePrice, timeOfLastUpdate, DateOfLastTrade);
+        return Objects.hash(id, securityType, lastTradePrice, timeOfLastUpdate, DateOfLastTrade, processingTime);
     }
 
     @Override
@@ -82,6 +92,7 @@ public class Event implements Serializable {
                 ", lastTradePrice=" + lastTradePrice +
                 ", timeOfLastUpdate='" + timeOfLastUpdate + '\'' +
                 ", DateOfLastTrade='" + DateOfLastTrade + '\'' +
+                ", processingTime=" + processingTime +
                 '}';
     }
 }

@@ -7,23 +7,36 @@ import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.Gauge;
+import org.apache.flink.shaded.guava30.com.google.common.util.concurrent.AtomicDouble;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 public class IndicatorsWindowFunction extends ProcessWindowFunction<Event, EventResults, String, TimeWindow> {
     private ValueState<EventResults> previousResults;
+
+    private transient AtomicDouble windowLatency;
+
 
     @Override
     public void open(Configuration config) {
         ValueStateDescriptor<EventResults> descriptor =
                 new ValueStateDescriptor<>("previousResults", Types.POJO(EventResults.class));
         previousResults = getRuntimeContext().getState(descriptor);
+        windowLatency = new AtomicDouble(0);
+        getRuntimeContext()
+                .getMetricGroup()
+                .gauge("windowLatencyInSeconds", (Gauge<Double>) windowLatency::get);
+
     }
 
     @Override
     public void process(String s, ProcessWindowFunction<Event, EventResults, String, TimeWindow>.Context context, Iterable<Event> iterable, Collector<EventResults> collector) throws Exception {
         for (Event event : iterable) {
+
             //System.out.println("Computing indicators for event " + event.getId());
 
             EventResults previousResults = this.previousResults.value();
@@ -32,6 +45,7 @@ public class IndicatorsWindowFunction extends ProcessWindowFunction<Event, Event
             results.setId(event.getId());
             results.setPrice(event.getLastTradePrice());
             results.setTimeStamp(event.getTimeOfLastUpdate());
+            results.setProcessingTime(event.getProcessingTime());
 
             computeEMA(event, results, previousResults);
             computeSMA(event, results, previousResults);
@@ -39,6 +53,9 @@ public class IndicatorsWindowFunction extends ProcessWindowFunction<Event, Event
             //System.out.println("Collecting the following results for event " + results);
 
             this.previousResults.update(results);
+            double latency = (double)(System.currentTimeMillis() - event.getProcessingTime())/1000;
+            windowLatency.set(latency);
+
             collector.collect(results);
         }
 

@@ -12,6 +12,7 @@ import org.apache.storm.kafka.bolt.mapper.FieldNameBasedTupleToKafkaMapper;
 import org.apache.storm.kafka.spout.KafkaSpout;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.topology.base.BaseWindowedBolt;
+import spout.KafkaBoltCustom;
 import spout.KafkaSpoutCustom;
 
 import java.util.Properties;
@@ -47,7 +48,7 @@ public class KafkaTopology {
         kafkaProps.put("acks", options.numOfAcks);
         kafkaProps.put("key.serializer", StringSerializer.class);
         kafkaProps.put("value.serializer", StringSerializer.class);
-        KafkaBolt<String, String> kafkaBolt = new KafkaBolt<String, String>()
+        KafkaBolt<String, String> kafkaBolt = new KafkaBoltCustom()
                 .withProducerProperties(kafkaProps)
                 //.withTopicSelector(new DynamicTopicSelector())
                 .withTopicSelector(outputTopicName)

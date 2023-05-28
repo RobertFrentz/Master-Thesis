@@ -48,13 +48,13 @@ public class KafkaSpoutCustom extends BaseRichSpout {
         ConsumerRecords<String, Event> records = kafkaConsumer.poll(Duration.ofMillis(1000));
         for (ConsumerRecord<String, Event> record : records) {
             // Emit the consumed record as a tuple
-            collector.emit(new Values(record.key(), record.value(), record.timestamp(), getMessageId()));
+            collector.emit(new Values(record.key(), record.value(), record.timestamp(), System.currentTimeMillis(), getMessageId()));
         }
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("key", "value", "timeStamp", "msgid"));
+        declarer.declare(new Fields("key", "value", "timeStamp", "processingTime","msgid"));
     }
 
     @Override
