@@ -3,6 +3,7 @@ package job;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.Event;
 import domain.EventDeserializationSchema;
+import domain.EventResultSerialization;
 import helpers.CustomRichMapper;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
@@ -31,6 +32,8 @@ public class DataStreamJob {
 
     private static void runJob(String[] args) throws Exception {
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
+
+        //environment.setParallelism(2);
 
         // End-to-End latency tracking
         //environment.getConfig().setLatencyTrackingInterval(100);
@@ -62,9 +65,9 @@ public class DataStreamJob {
         KafkaSink<String> kafkaSink = KafkaSink.<String>builder()
                 .setBootstrapServers(options.brokerUrl)
                 .setRecordSerializer(KafkaRecordSerializationSchema.builder()
-                        //.setTopic("flink-output-topic")
-                        .setTopicSelector(new KafkaDynamicTopicSelector())
-                        .setValueSerializationSchema(new SimpleStringSchema())
+                        .setTopic("flink-output-topic")
+                        //.setTopicSelector(new KafkaDynamicTopicSelector())
+                        .setValueSerializationSchema(new EventResultSerialization())
                         .setKeySerializationSchema(new SimpleStringSchema())
                         .build()
                 )
@@ -90,13 +93,12 @@ public class DataStreamJob {
                 .window(TumblingEventTimeWindows.of(windowSize))
                 .reduce(new LastObservedPriceReduceFunction(), new IndicatorsWindowFunction())
                 .setParallelism(options.windowParallelism)
-                .map(objectMapper::writeValueAsString);
+                .map(objectMapper::writeValueAsString)
+                .map(new CustomRichMapper());
 
 
-        processedEvents
-                .map(new CustomRichMapper())
-                .sinkTo(kafkaSink).setParallelism(options.kafkaSinkParallelism);
-        environment.execute("Stock Market Job");
+        processedEvents.sinkTo(kafkaSink).setParallelism(options.kafkaSinkParallelism);
+        environment.execute("Stock Market Job " + LocalDateTime.now());
     }
 }
 

@@ -24,7 +24,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class StockEventsKafkaProducer {
@@ -32,7 +32,14 @@ public class StockEventsKafkaProducer {
 
     private static final ConcurrentHashMap<String, Long> benchmark = new ConcurrentHashMap<>();
 
+    private static final AtomicInteger throughput = new AtomicInteger(0);
+
+    private static final AtomicReference<Double> latency = new AtomicReference<>(0.0);
+
     private static final ObjectMapper mapper = new ObjectMapper();
+
+    public StockEventsKafkaProducer() throws IOException {
+    }
 
     public static void main(String[] args) {
 
@@ -50,7 +57,7 @@ public class StockEventsKafkaProducer {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-        //includeBenchmark();
+        includeBenchmark();
 
         try (
                 Producer<String, String> producer = new KafkaProducer<>(props);
@@ -84,7 +91,12 @@ public class StockEventsKafkaProducer {
                     //ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, value);
                     producer.send(record);
                     //producer.send(record2);
-                    //benchmark.put(event.id + event.timeOfLastUpdate, System.currentTimeMillis());
+                    String regex = "^\\d\\d:(04|09|14|19|24|29|34|39|44|49|54|59).*";
+                    if(event.getTimeOfLastUpdate().matches(regex)){
+                        //System.out.println(event.id + "  " + event.timeOfLastUpdate);
+                        benchmark.put(event.id + event.timeOfLastUpdate, System.currentTimeMillis());
+                    }
+
 
                     if(delay != 0){
                         Thread.sleep(delay);
@@ -138,16 +150,21 @@ public class StockEventsKafkaProducer {
         // Start the reporter
         reporter.start(30, TimeUnit.SECONDS);
 
-        AtomicReference<Double> latency = new AtomicReference<>(0.0);
-
         // Register and use a metric with a single long value
         Gauge<Double> gauge = latency::get;
-        registry.register("gauge_flink", gauge);
+        registry.register("gauge_flink_latency", gauge);
+
+        Gauge<Integer> gauge2 = throughput::get;
+        registry.register("gauge_flink_throughput", gauge2);
 
         new Thread(() -> {
             try {
                 while (true) {
-                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(100));
+                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(1000));
+//                    int countRecords = count.get() + records.count();
+//                    count.set(count.get() + 1);
+//                    throughput.set(throughput.get() + (double)(records.count()/countRecords));
+                    throughput.set(records.count());
                     for (ConsumerRecord<String, String> record : records) {
                         String key = getIdFrom(record.value());
                         Long millis;
@@ -162,6 +179,7 @@ public class StockEventsKafkaProducer {
                         double timePassedInSeconds = (double)(System.currentTimeMillis() - millis) / 1000;
                         //System.out.println("With timestamp " + timePassedInSeconds);
                         latency.set(timePassedInSeconds);
+                        benchmark.remove(key);
                     }
 
                 }

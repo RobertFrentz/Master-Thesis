@@ -20,9 +20,12 @@ public class IndicatorsWindowFunction extends ProcessWindowFunction<Event, Event
 
     private transient AtomicDouble windowLatency;
 
+    private transient AtomicLong startTime = new AtomicLong(0);
+
 
     @Override
     public void open(Configuration config) {
+        startTime.set(System.currentTimeMillis());
         ValueStateDescriptor<EventResults> descriptor =
                 new ValueStateDescriptor<>("previousResults", Types.POJO(EventResults.class));
         previousResults = getRuntimeContext().getState(descriptor);
@@ -53,11 +56,13 @@ public class IndicatorsWindowFunction extends ProcessWindowFunction<Event, Event
             //System.out.println("Collecting the following results for event " + results);
 
             this.previousResults.update(results);
-            double latency = (double)(System.currentTimeMillis() - event.getProcessingTime())/1000;
-            windowLatency.set(latency);
 
             collector.collect(results);
         }
+
+        double latency = (double)(System.currentTimeMillis() - startTime.get())/1000;
+        System.out.println(latency);
+        windowLatency.set(latency);
 
         //System.out.println("\n \n \n");
         //System.out.println("Finished processing window" + "\n");

@@ -77,6 +77,7 @@ public class KafkaTopology {
         config.put(Config.TOPOLOGY_BOLTS_MESSAGE_ID_FIELD_NAME, "msgid");
         config.put(Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS, options.windowDuration * 2 + 30);
         config.setNumWorkers(options.numOfWorkers);
+        config.setStatsSampleRate(1.0);
         config.setDebug(true);
         StormSubmitter.submitTopology("my-topology", config, builder.createTopology());
     }

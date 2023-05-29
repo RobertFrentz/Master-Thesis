@@ -30,23 +30,17 @@ Kakfa:
 	
 	
 	kafka-topics --create --topic trade-data --partitions 1 --replication-factor 1 --bootstrap-server localhost:9092
-	
 	kafka-topics --create --topic IEBBB.FR --partitions 1 --replication-factor 1 --bootstrap-server localhost:9092
 	kafka-topics --create --topic IUIFL.FR --partitions 1 --replication-factor 1 --bootstrap-server localhost:9092
-	
 	kafka-topics --create --topic storm-output-topic --partitions 1 --replication-factor 1 --bootstrap-server localhost:9092
 	kafka-topics --create --topic flink-output-topic --partitions 1 --replication-factor 1 --bootstrap-server localhost:9092
-	
 	
 	kafka-topics --list --bootstrap-server localhost:9092
 	kafka-topics --bootstrap-server localhost:9092 --describe --topic IGAGU.FR
 	
-	
 	kafka-topics --bootstrap-server localhost:9092 --topic trade-data --delete --if-exists
-	
 	kafka-topics --bootstrap-server localhost:9092 --topic IEBBB.FR --delete --if-exists
 	kafka-topics --bootstrap-server localhost:9092 --topic IUIFL.FR --delete --if-exists
-	
 	kafka-topics --bootstrap-server localhost:9092 --topic storm-output-topic --delete --if-exists
 	kafka-topics --bootstrap-server localhost:9092 --topic flink-output-topic --delete --if-exists
 	
