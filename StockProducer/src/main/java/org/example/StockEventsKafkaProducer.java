@@ -47,7 +47,11 @@ public class StockEventsKafkaProducer {
         int delay = Integer.parseInt(args[0]);
 
         String topicName = "trade-data";
-        String csvFile = "C:/Users/Robert/Downloads/output08-copy.csv";
+        String[] csvFiles = new String[] {
+                "C:/Users/Administrator/Downloads/output08.csv",
+                "C:/Users/Administrator/Downloads/output09.csv",
+                "C:/Users/Administrator/Downloads/output10.csv"
+        };
         String line = "";
         String csvSplitBy = ",";
 
@@ -65,46 +69,49 @@ public class StockEventsKafkaProducer {
         {
             ObjectMapper mapper = new ObjectMapper();
 
-            try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-                boolean firstLineRead = false;
-                int lineNumber = 0;
-                while ((line = br.readLine()) != null) {
-                    if(!firstLineRead){
-                        firstLineRead = true;
-                        continue;
+            for(String csvFile : csvFiles){
+                try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+                    boolean firstLineRead = false;
+                    int lineNumber = 0;
+                    while ((line = br.readLine()) != null) {
+                        if(!firstLineRead){
+                            firstLineRead = true;
+                            continue;
+                        }
+                        lineNumber++;
+                        //System.out.println(lineNumber);
+                        String[] data = line.split(csvSplitBy);
+
+                        //System.out.println(Arrays.toWString(data));
+
+                        Event event = new Event(data[0], data[1], Double.parseDouble(data[2]), data[3], data[4]);
+
+                        String key = event.getId();
+                        String value = mapper.writeValueAsString(event);
+
+                        long timestamp = EventDateTimeHelper.getDateTimeInMillis(event);
+
+                        ProducerRecord<String, String> record = new ProducerRecord<>(topicName, 0, timestamp, key, value);
+                        //ProducerRecord<String, String> record2 = new ProducerRecord<>(topicName, 1, timestamp, key, value);
+                        //ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, value);
+                        producer.send(record);
+                        //producer.send(record2);
+                        String regex = "^\\d\\d:(04|09|14|19|24|29|34|39|44|49|54|59).*";
+                        if(event.getTimeOfLastUpdate().matches(regex)){
+                            //System.out.println(event.id + "  " + event.timeOfLastUpdate);
+                            benchmark.put(event.id + event.timeOfLastUpdate, System.currentTimeMillis());
+                        }
+
+
+                        if(delay != 0){
+                            Thread.sleep(delay);
+                        }
                     }
-                    lineNumber++;
-                    //System.out.println(lineNumber);
-                    String[] data = line.split(csvSplitBy);
-
-                    //System.out.println(Arrays.toWString(data));
-
-                    Event event = new Event(data[0], data[1], Double.parseDouble(data[2]), data[3], data[4]);
-
-                    String key = event.getId();
-                    String value = mapper.writeValueAsString(event);
-
-                    long timestamp = EventDateTimeHelper.getDateTimeInMillis(event);
-
-                    ProducerRecord<String, String> record = new ProducerRecord<>(topicName, 0, timestamp, key, value);
-                    //ProducerRecord<String, String> record2 = new ProducerRecord<>(topicName, 1, timestamp, key, value);
-                    //ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, value);
-                    producer.send(record);
-                    //producer.send(record2);
-                    String regex = "^\\d\\d:(04|09|14|19|24|29|34|39|44|49|54|59).*";
-                    if(event.getTimeOfLastUpdate().matches(regex)){
-                        //System.out.println(event.id + "  " + event.timeOfLastUpdate);
-                        benchmark.put(event.id + event.timeOfLastUpdate, System.currentTimeMillis());
-                    }
-
-
-                    if(delay != 0){
-                        Thread.sleep(delay);
-                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+
 
             System.out.println("Finished reading");
 
@@ -154,17 +161,24 @@ public class StockEventsKafkaProducer {
         Gauge<Double> gauge = latency::get;
         registry.register("gauge_flink_latency", gauge);
 
-        Gauge<Integer> gauge2 = throughput::get;
+        Gauge<Double> gauge2 = () -> {
+            double throughputPer30Seconds = (double) throughput.get()/30;
+            System.out.println("Check here " + throughputPer30Seconds);
+            throughput.set(0);
+            return throughputPer30Seconds;
+        };
         registry.register("gauge_flink_throughput", gauge2);
 
         new Thread(() -> {
             try {
+
                 while (true) {
                     ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(1000));
+                    throughput.set(throughput.get() + records.count());
 //                    int countRecords = count.get() + records.count();
 //                    count.set(count.get() + 1);
 //                    throughput.set(throughput.get() + (double)(records.count()/countRecords));
-                    throughput.set(records.count());
+
                     for (ConsumerRecord<String, String> record : records) {
                         String key = getIdFrom(record.value());
                         Long millis;

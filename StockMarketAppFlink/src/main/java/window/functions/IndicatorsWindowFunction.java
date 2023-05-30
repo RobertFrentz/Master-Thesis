@@ -20,11 +20,12 @@ public class IndicatorsWindowFunction extends ProcessWindowFunction<Event, Event
 
     private transient AtomicDouble windowLatency;
 
-    private transient AtomicLong startTime = new AtomicLong(0);
+    private transient AtomicLong startTime;
 
 
     @Override
     public void open(Configuration config) {
+        startTime = new AtomicLong(0);
         startTime.set(System.currentTimeMillis());
         ValueStateDescriptor<EventResults> descriptor =
                 new ValueStateDescriptor<>("previousResults", Types.POJO(EventResults.class));
@@ -61,7 +62,7 @@ public class IndicatorsWindowFunction extends ProcessWindowFunction<Event, Event
         }
 
         double latency = (double)(System.currentTimeMillis() - startTime.get())/1000;
-        System.out.println(latency);
+        //System.out.println(latency);
         windowLatency.set(latency);
 
         //System.out.println("\n \n \n");

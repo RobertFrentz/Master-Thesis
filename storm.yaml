@@ -12,3 +12,7 @@ storm.metrics.reporters:
     report.period.units: "SECONDS"
     graphite.host: "graphite"
     graphite.port: 2003
+storm.daemon.metrics.reporter.plugins:
+    - "org.apache.storm.daemon.metrics.reporters.CsvPreparableReporter"
+storm.metrics.reporter.csv.file.location: "metrics.csv"
+storm.metrics.reporter.csv.delimiter: ","
