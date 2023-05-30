@@ -1,0 +1,80 @@
+Title: Comparative Analysis of Event-Based System Implementations for Financial Data Analysis
+
+//Abstract
+
+Introduction
+a. Background and Context 1-2pag (max 3)
+
+	Overview of financial data analysis and its significance
+	Introduction to event-based systems and their applications in finance
+	Indicators that are going to be analyzed & describe how they are computed
+
+b. Research Problem/Motivation
+
+	Need for a comparative analysis of event-based system implementations for financial data analysis (big data, not so popular, DEBS 2022 grand challenge)
+	Research questions/objectives of the comparative analysis
+	Contribution
+
+c. Dissertation Outline
+
+    Overview of the chapters and their contents
+
+
+Chapter 2: Literature Review
+
+	Explanation of event-based systems and their suitability for stock market data analysis
+    Review of various (event-based system) implementations in finance market
+    Comparative analysis of their features, strengths, and limitations
+
+Chapter 3: Personal Stock Trading System
+3.1 Architecture
+
+	Describe every module of the application together with it's purpose, technology & justification.
+	Use diagrams (e.g. C4)
+	
+3.2 Data
+
+    Explanation of the data sources .
+    Describe what does an event looks like. (processing input)
+	Describe what an result event looks like. (processing ouput)
+	Describe for each of them how it is propagated in the system ()
+	
+3.3 Implementations
+
+	Describe Apache Flink implementation (use diagrams)
+	Describe Apache Storm implementation (use diagrams)
+	Analyize differences between them
+	
+3.4 Conclusion (optional)
+
+	Summary of Personal Stock Trading System description.
+
+Chapter 4: Comparative Analysis
+4.1 Analysed metrics (justifications and cases like end-to-end (define), framework end-to-end, window processing)
+	a. Latency
+	b. Throughput
+	c. Scalability (optional)
+	d. Fault Tolerance (no graphs)
+	e. Development & Maintenance
+	
+	++ different parallelism, queue/buffer size
+4.2 Benchmark Setup
+
+    Describe the benchmark system (every technology is in separate container) and justify the approach.
+		Describe the machines spec/docker containers spec.
+		Describe how containers communicate with each other using the docker network protocol.
+		
+
+4.3 Results + comparations
+
+	Show/Describe Grafana graphs together with observations
+    Centralize results in a table (optional)
+
+5 Conclusion
+
+	Summary of the findings
+	Suggesting potential areas for further investigation (compare with Apache Spark)
+    Identifying opportunities for improvement in event-based system implementations (optimisation)
+	
+	
+References
