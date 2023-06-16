@@ -4,6 +4,7 @@ import bolt.WindowBolt;
 import domain.JsonEventDeserializer;
 import helper.KafkaRecordTranslator;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.log4j.LogManager;
@@ -62,6 +63,8 @@ public class KafkaTopology {
         kafkaProps.put("acks", options.numOfAcks);
         kafkaProps.put("key.serializer", StringSerializer.class);
         kafkaProps.put("value.serializer", StringSerializer.class);
+        kafkaProps.put(ProducerConfig.LINGER_MS_CONFIG, 0);
+        kafkaProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 500);
         //kafkaProps.put("value.serializer", JsonEventSerializer.class);
         KafkaBolt<String, String> kafkaBolt = new KafkaBoltCustom()
                 .withProducerProperties(kafkaProps)
@@ -97,11 +100,11 @@ public class KafkaTopology {
         config.setDebug(false);
        // config.setTopologyWorkerMaxHeapSize(1500);
         config.setNumAckers(2);
-        //config.setMaxSpoutPending(5000);
+        config.setMaxSpoutPending(10000);
 //        config.put(Config.TOPOLOGY_TRANSFER_BUFFER_SIZE, 32);
 //        config.put(Config.TOPOLOGY_TRANSFER_BATCH_SIZE, 1000);
         //config.put(Config.TOPOLOGY_BATCH_FLUSH_INTERVAL_MILLIS, 1000);
-        config.put(Config.TOPOLOGY_PRODUCER_BATCH_SIZE, 1000);
+        config.put(Config.TOPOLOGY_PRODUCER_BATCH_SIZE, 100);
         config.put(Config.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, 131072);
 //        int topology_executor_receive_buffer_size = 32768; // intra-worker messaging, default: 32768
 //        int topology_transfer_buffer_size = 2048; // inter-worker messaging, default: 1000

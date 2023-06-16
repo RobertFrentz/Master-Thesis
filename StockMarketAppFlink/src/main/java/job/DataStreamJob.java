@@ -72,13 +72,11 @@ public class DataStreamJob {
                         .setKeySerializationSchema(new SimpleStringSchema())
                         .build()
                 )
-                .setProperty(ProducerConfig.BATCH_SIZE_CONFIG, "150000")
-                .setProperty(ProducerConfig.LINGER_MS_CONFIG, "20")
-                .setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4")
+//                .setProperty(ProducerConfig.BATCH_SIZE_CONFIG, "150000")
+//                .setProperty(ProducerConfig.LINGER_MS_CONFIG, "20")
+//                .setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4")
                 .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
                 .build();
-
-
 
         DataStream<Event> events = environment
                 .fromSource(
@@ -99,7 +97,7 @@ public class DataStreamJob {
                 .setParallelism(options.windowParallelism)
                 //.map(objectMapper::writeValueAsString)
                 .map(new CustomRichMapper())
-                .setParallelism(options.kafkaSourceParallelism);
+                .setParallelism(options.windowParallelism);
 
 
         processedEvents.sinkTo(kafkaSink).setParallelism(options.kafkaSinkParallelism);

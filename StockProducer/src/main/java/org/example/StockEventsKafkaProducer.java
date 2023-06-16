@@ -205,7 +205,6 @@ public class StockEventsKafkaProducer {
 //        Gauge<Double> gauge2 = throughput::get;
 //        registry.register("gauge_flink_throughput", gauge2);
 
-
         new Thread(() -> {
             // Create a metric registry
             MetricRegistry registry = new MetricRegistry();
@@ -230,7 +229,7 @@ public class StockEventsKafkaProducer {
             registry.register("histogram_flink_latency", histogram);
             try {
                 while (true) {
-                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(1000));
+                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(0));
                     meter.mark(records.count());
 //                    int latencySizeLocal = latencySize.get();
 //                    float latencyAverage = latency.get();
