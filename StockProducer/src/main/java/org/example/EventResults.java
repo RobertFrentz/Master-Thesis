@@ -16,19 +16,21 @@ public class EventResults implements Serializable {
 
     String breakoutPattern;
 
-    String timeStamp;
+    String time;
+
+    String date;
 
     public EventResults() {
     }
 
-    public EventResults(String id, double price, double EMA38, double EMA100, double SMA2, String breakoutPattern, String timeStamp) {
+    public EventResults(String id, double price, double EMA38, double EMA100, double SMA2, String breakoutPattern, String time) {
         this.id = id;
         this.price = price;
         this.EMA38 = EMA38;
         this.EMA100 = EMA100;
         this.SMA2 = SMA2;
         this.breakoutPattern = breakoutPattern;
-        this.timeStamp = timeStamp;
+        this.time = time;
     }
 
     public String getId() {
@@ -79,12 +81,20 @@ public class EventResults implements Serializable {
         this.breakoutPattern = breakoutPattern;
     }
 
-    public String getTimeStamp() {
-        return timeStamp;
+    public String getTime() {
+        return time;
     }
 
-    public void setTimeStamp(String timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     @Override
@@ -92,12 +102,12 @@ public class EventResults implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EventResults that = (EventResults) o;
-        return Double.compare(that.price, price) == 0 && Double.compare(that.EMA38, EMA38) == 0 && Double.compare(that.EMA100, EMA100) == 0 && Double.compare(that.SMA2, SMA2) == 0 && Objects.equals(id, that.id) && Objects.equals(breakoutPattern, that.breakoutPattern) && Objects.equals(timeStamp, that.timeStamp);
+        return Double.compare(that.price, price) == 0 && Double.compare(that.EMA38, EMA38) == 0 && Double.compare(that.EMA100, EMA100) == 0 && Double.compare(that.SMA2, SMA2) == 0 && Objects.equals(id, that.id) && Objects.equals(breakoutPattern, that.breakoutPattern) && Objects.equals(time, that.time) && Objects.equals(date, that.date);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, price, EMA38, EMA100, SMA2, breakoutPattern, timeStamp);
+        return Objects.hash(id, price, EMA38, EMA100, SMA2, breakoutPattern, time, date);
     }
 
     @Override
@@ -109,7 +119,8 @@ public class EventResults implements Serializable {
                 ", EMA100=" + EMA100 +
                 ", SMA2=" + SMA2 +
                 ", breakoutPattern='" + breakoutPattern + '\'' +
-                ", timeStamp='" + timeStamp + '\'' +
+                ", time='" + time + '\'' +
+                ", date='" + date + '\'' +
                 '}';
     }
 }

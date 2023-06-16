@@ -1,21 +1,19 @@
 Title: Comparative Analysis of Event-Based System Implementations for Financial Data Analysis
 
-//Abstract
-
-Introduction
-a. Background and Context 1-2pag (max 3)
+1 Introduction
+1.1 Background and Context 1-2pag (max 3)
 
 	Overview of financial data analysis and its significance
 	Introduction to event-based systems and their applications in finance
-	Indicators that are going to be analyzed & describe how they are computed
-
-b. Research Problem/Motivation
+	
+1.2. Research Problem
 
 	Need for a comparative analysis of event-based system implementations for financial data analysis (big data, not so popular, DEBS 2022 grand challenge)
+	Indicators that are going to be analyzed & describe how they are computed
 	Research questions/objectives of the comparative analysis
 	Contribution
 
-c. Dissertation Outline
+1.3 Dissertation Outline
 
     Overview of the chapters and their contents
 
@@ -27,50 +25,61 @@ Chapter 2: Literature Review
     Comparative analysis of their features, strengths, and limitations
 
 Chapter 3: Personal Stock Trading System
-3.1 Architecture
+3.1 Architecture (3 pag)
 
 	Describe every module of the application together with it's purpose, technology & justification.
 	Use diagrams (e.g. C4)
 	
-3.2 Data
+3.2 Data (2-3 pag)
 
     Explanation of the data sources .
     Describe what does an event looks like. (processing input)
 	Describe what an result event looks like. (processing ouput)
 	Describe for each of them how it is propagated in the system ()
 	
-3.3 Implementations
+3.3 Implementations (8 pag)
 
-	Describe Apache Flink implementation (use diagrams)
-	Describe Apache Storm implementation (use diagrams)
-	Analyize differences between them
+	Describe Apache Flink implementation (use diagrams) (3 pag)
+	Describe Apache Storm implementation (use diagrams) (2 pag)
+	Web Server(1 pag)
+	Smart interface(2 pag)
 	
 3.4 Conclusion (optional)
 
 	Summary of Personal Stock Trading System description.
 
-Chapter 4: Comparative Analysis
-4.1 Analysed metrics (justifications and cases like end-to-end (define), framework end-to-end, window processing)
+Chapter 4: Comparative Analysis (10-12 pag)
+4.1 Analysed metrics (justifications and cases like end-to-end (define), framework end-to-end, window processing) (3 pag)
 	a. Latency
 	b. Throughput
 	c. Scalability (optional)
 	d. Fault Tolerance (no graphs)
-	e. Development & Maintenance
+	e. Development & Maintenance (no graphs)
+
 	
-	++ different parallelism, queue/buffer size
-4.2 Benchmark Setup
+4.2 Benchmark Setup (2-3 pag)
 
     Describe the benchmark system (every technology is in separate container) and justify the approach.
-		Describe the machines spec/docker containers spec.
-		Describe how containers communicate with each other using the docker network protocol.
+	Describe how containers communicate with each other using the docker network protocol.
+	Describe the machines spec/docker containers spec.
+	Describe how metrics are collected
+	Describe frameworks parameters
 		
 
-4.3 Results + comparations
+4.3 Results + comparations (5-6 pag)
 
 	Show/Describe Grafana graphs together with observations
-    Centralize results in a table (optional)
+    Centralize results in a table (optional) 
+		Lines -> 
+			JVM CPU load, 
+			JVM Memory - Heap, 
+			End-to-end latency (max/mean/min), 
+			End-to-end throughput, 
+			Framework latency/throughput (max/mean/min), 
+			Window latency/throughput (max/mean/min), 
+			Kafka spout/source throughput
 
-5 Conclusion
+5 Conclusion (1-2 pag)
 
 	Summary of the findings
 	Suggesting potential areas for further investigation (compare with Apache Spark)
@@ -78,3 +87,4 @@ Chapter 4: Comparative Analysis
 	
 	
 References
+

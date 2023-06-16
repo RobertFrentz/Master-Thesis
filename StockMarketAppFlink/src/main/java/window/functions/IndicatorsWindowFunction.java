@@ -1,54 +1,59 @@
 package window.functions;
 
-import domain.EventResults;
+import com.codahale.metrics.UniformReservoir;
 import domain.Event;
+import domain.EventResults;
 import domain.enums.SmoothingFactors;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.metrics.Gauge;
+import org.apache.flink.dropwizard.metrics.DropwizardHistogramWrapper;
+import org.apache.flink.metrics.Histogram;
 import org.apache.flink.shaded.guava30.com.google.common.util.concurrent.AtomicDouble;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 public class IndicatorsWindowFunction extends ProcessWindowFunction<Event, EventResults, String, TimeWindow> {
     private ValueState<EventResults> previousResults;
 
-    private transient AtomicDouble windowLatency;
+    //private transient AtomicDouble windowLatency;
 
-    private transient AtomicLong startTime;
+    private transient Histogram histogram;
+
 
 
     @Override
     public void open(Configuration config) {
-        startTime = new AtomicLong(0);
-        startTime.set(System.currentTimeMillis());
         ValueStateDescriptor<EventResults> descriptor =
                 new ValueStateDescriptor<>("previousResults", Types.POJO(EventResults.class));
         previousResults = getRuntimeContext().getState(descriptor);
-        windowLatency = new AtomicDouble(0);
-        getRuntimeContext()
+        //windowLatency = new AtomicDouble(0);
+        com.codahale.metrics.Histogram dropwizardHistogram =
+                new com.codahale.metrics.Histogram(new UniformReservoir());
+        histogram = getRuntimeContext()
                 .getMetricGroup()
-                .gauge("windowLatencyInSeconds", (Gauge<Double>) windowLatency::get);
+                .histogram("windowLatencyInMilliseconds", new DropwizardHistogramWrapper(dropwizardHistogram));
 
     }
 
     @Override
     public void process(String s, ProcessWindowFunction<Event, EventResults, String, TimeWindow>.Context context, Iterable<Event> iterable, Collector<EventResults> collector) throws Exception {
+        double eventsLatencyAverage = 0;
+        long size = 0;
         for (Event event : iterable) {
-
-            //System.out.println("Computing indicators for event " + event.getId());
+            event.setWindowProcessingTime(event.getWindowProcessingTime() != null ? event.getWindowProcessingTime() : System.currentTimeMillis());
+//            System.out.println("Computing indicators for event " + event.getId());
+//            System.out.println(event.getWindowProcessingTime());
 
             EventResults previousResults = this.previousResults.value();
             EventResults results = new EventResults();
 
             results.setId(event.getId());
             results.setPrice(event.getLastTradePrice());
-            results.setTimeStamp(event.getTimeOfLastUpdate());
+            results.setTime(event.getTimeOfLastUpdate());
+            results.setDate(event.getDateOfLastTrade());
             results.setProcessingTime(event.getProcessingTime());
 
             computeEMA(event, results, previousResults);
@@ -59,11 +64,15 @@ public class IndicatorsWindowFunction extends ProcessWindowFunction<Event, Event
             this.previousResults.update(results);
 
             collector.collect(results);
-        }
 
-        double latency = (double)(System.currentTimeMillis() - startTime.get())/1000;
-        //System.out.println(latency);
-        windowLatency.set(latency);
+            long windowEventLatency = System.currentTimeMillis() - event.getWindowProcessingTime();
+            eventsLatencyAverage = (eventsLatencyAverage * size + windowEventLatency) / (size + 1);
+            size++;
+        }
+        histogram.update((long)eventsLatencyAverage);
+//        double latency = eventsLatencyAverage / 1000;
+//        //System.out.println(latency);
+//        windowLatency.set(latency);
 
         //System.out.println("\n \n \n");
         //System.out.println("Finished processing window" + "\n");

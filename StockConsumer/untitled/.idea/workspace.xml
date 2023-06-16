@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="20c36d5e-9018-40b7-a0e5-1c0494917a00" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/App.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/org/example/AppTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../StockMartketAppStorm/src/main/java/topology/GraphiteClusterMetricsReporter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Important_comands.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../Important_comands.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Interface/Frontend/src/app/app.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../Interface/Frontend/src/app/app.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Interface/Frontend/src/app/types/event.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../Interface/Frontend/src/app/types/event.type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Interface/Frontend/src/app/types/fake-data.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../Interface/Frontend/src/app/types/fake-data.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo/src/main/java/com/example/demo/EventResults.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo/src/main/java/com/example/demo/KafkaWebSocketHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../demo/src/main/java/com/example/demo/KafkaWebSocketHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockMarketAppFlink/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockMarketAppFlink/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockMarketAppFlink/src/main/java/domain/Event.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockMarketAppFlink/src/main/java/domain/Event.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockMarketAppFlink/src/main/java/domain/EventResults.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockMarketAppFlink/src/main/java/domain/EventResults.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockMarketAppFlink/src/main/java/helpers/CustomRichMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockMarketAppFlink/src/main/java/helpers/CustomRichMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockMarketAppFlink/src/main/java/job/DataStreamJob.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockMarketAppFlink/src/main/java/job/DataStreamJob.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockMarketAppFlink/src/main/java/window/functions/IndicatorsWindowFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockMarketAppFlink/src/main/java/window/functions/IndicatorsWindowFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockMarketAppFlink/src/main/java/window/functions/LastObservedPriceReduceFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockMarketAppFlink/src/main/java/window/functions/LastObservedPriceReduceFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockMartketAppStorm/src/main/java/bolt/WindowBolt.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockMartketAppStorm/src/main/java/bolt/WindowBolt.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockMartketAppStorm/src/main/java/domain/EventResults.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockMartketAppStorm/src/main/java/domain/EventResults.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockMartketAppStorm/src/main/java/spout/KafkaBoltCustom.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockMartketAppStorm/src/main/java/spout/KafkaBoltCustom.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockMartketAppStorm/src/main/java/topology/KafkaTopology.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockMartketAppStorm/src/main/java/topology/KafkaTopology.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockProducer/src/main/java/org/example/EventResults.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockProducer/src/main/java/org/example/EventResults.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../StockProducer/src/main/java/org/example/StockEventsKafkaProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../StockProducer/src/main/java/org/example/StockEventsKafkaProducer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Structura-disertatie.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../Structura-disertatie.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../storm.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../storm.yaml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectId" id="2QyCw91QfvsgWfoSyZmTccPBWCt" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="20c36d5e-9018-40b7-a0e5-1c0494917a00" name="Changes" comment="" />
+      <created>1686316670193</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1686316670193</updated>
+      <workItem from="1686316671276" duration="631000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

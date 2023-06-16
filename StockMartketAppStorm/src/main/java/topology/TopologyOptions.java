@@ -41,7 +41,7 @@ public class TopologyOptions {
             else if(arg.matches("^--executors-kafka-bolt=[1-9]$")){
                 numOfExecutorsForKafkaBolt = Integer.parseInt(String.valueOf(arg.charAt(arg.length() - 1)));
             }
-            else if(arg.matches("^--acks=[1-9]$")){
+            else if(arg.matches("^--acks=[0-9]$")){
                 numOfAcks = String.valueOf(arg.charAt(arg.length() - 1));
             }
             else if(arg.matches("^--window-duration-seconds=[0-9]+$")){

@@ -11,7 +11,7 @@ export function getDummyEvents(): StockEvent[] {
       ema100: Math.random() * 100, // Random EMA100 value between 0 and 100
       sma2: Math.random() * 100, // Random SMA2 value between 0 and 100
       breakoutPattern: `Pattern-${i + 1}`,
-      timeStamp: new Date(
+      time: new Date(
         new Date().getDate() + Math.random() * 100
       ).toISOString(),
     };

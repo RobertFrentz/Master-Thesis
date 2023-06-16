@@ -16,6 +16,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.TopicPartition;
 import window.functions.IndicatorsWindowFunction;
 import window.functions.LastObservedPriceReduceFunction;
@@ -33,13 +34,13 @@ public class DataStreamJob {
     private static void runJob(String[] args) throws Exception {
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        //environment.setParallelism(2);
-
         // End-to-End latency tracking
         //environment.getConfig().setLatencyTrackingInterval(100);
 
         JobOptions options = new JobOptions(args);
-        ObjectMapper objectMapper = new ObjectMapper();
+        //ObjectMapper objectMapper = new ObjectMapper();
+
+        //environment.setParallelism(options.windowParallelism);
 
         System.out.println("Registering job with the following options");
         System.out.println(options);
@@ -71,6 +72,9 @@ public class DataStreamJob {
                         .setKeySerializationSchema(new SimpleStringSchema())
                         .build()
                 )
+                .setProperty(ProducerConfig.BATCH_SIZE_CONFIG, "150000")
+                .setProperty(ProducerConfig.LINGER_MS_CONFIG, "20")
+                .setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4")
                 .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
                 .build();
 
@@ -80,7 +84,7 @@ public class DataStreamJob {
                 .fromSource(
                         kafkaSource,
                         WatermarkStrategy
-                                .forBoundedOutOfOrderness(Duration.ofSeconds(10)),
+                                .forBoundedOutOfOrderness(Duration.ofSeconds(5)),
                                 //.forMonotonousTimestamps()
                                 //.withTimestampAssigner((event, timestamp) -> EventDateTimeHelper.getDateTimeInMillis(event)),
                         "Kafka Source")
@@ -93,8 +97,9 @@ public class DataStreamJob {
                 .window(TumblingEventTimeWindows.of(windowSize))
                 .reduce(new LastObservedPriceReduceFunction(), new IndicatorsWindowFunction())
                 .setParallelism(options.windowParallelism)
-                .map(objectMapper::writeValueAsString)
-                .map(new CustomRichMapper());
+                //.map(objectMapper::writeValueAsString)
+                .map(new CustomRichMapper())
+                .setParallelism(options.kafkaSourceParallelism);
 
 
         processedEvents.sinkTo(kafkaSink).setParallelism(options.kafkaSinkParallelism);

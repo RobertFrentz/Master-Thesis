@@ -11,6 +11,7 @@ public class Event implements Serializable {
     String DateOfLastTrade;
 
     Long processingTime;
+    Long windowProcessingTime;
 
     public Event() {
     }
@@ -71,17 +72,25 @@ public class Event implements Serializable {
         this.processingTime = processingTime;
     }
 
+    public Long getWindowProcessingTime() {
+        return windowProcessingTime;
+    }
+
+    public void setWindowProcessingTime(Long windowProcessingTime) {
+        this.windowProcessingTime = windowProcessingTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
-        return Double.compare(event.lastTradePrice, lastTradePrice) == 0 && Objects.equals(id, event.id) && Objects.equals(securityType, event.securityType) && Objects.equals(timeOfLastUpdate, event.timeOfLastUpdate) && Objects.equals(DateOfLastTrade, event.DateOfLastTrade) && Objects.equals(processingTime, event.processingTime);
+        return Double.compare(event.lastTradePrice, lastTradePrice) == 0 && Objects.equals(id, event.id) && Objects.equals(securityType, event.securityType) && Objects.equals(timeOfLastUpdate, event.timeOfLastUpdate) && Objects.equals(DateOfLastTrade, event.DateOfLastTrade) && Objects.equals(processingTime, event.processingTime) && Objects.equals(windowProcessingTime, event.windowProcessingTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, securityType, lastTradePrice, timeOfLastUpdate, DateOfLastTrade, processingTime);
+        return Objects.hash(id, securityType, lastTradePrice, timeOfLastUpdate, DateOfLastTrade, processingTime, windowProcessingTime);
     }
 
     @Override
@@ -93,6 +102,7 @@ public class Event implements Serializable {
                 ", timeOfLastUpdate='" + timeOfLastUpdate + '\'' +
                 ", DateOfLastTrade='" + DateOfLastTrade + '\'' +
                 ", processingTime=" + processingTime +
+                ", windowProcessingTime=" + windowProcessingTime +
                 '}';
     }
 }

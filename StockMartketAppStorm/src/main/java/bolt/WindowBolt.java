@@ -1,17 +1,13 @@
 package bolt;
 
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.Meter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.Event;
 import domain.EventResults;
 import domain.JsonEventResultsSerializer;
 import domain.SmoothingFactors;
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.KafkaAdminClient;
-import org.apache.kafka.clients.admin.ListTopicsResult;
-import org.apache.kafka.clients.admin.NewTopic;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.apache.storm.state.KeyValueState;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
@@ -22,8 +18,9 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.apache.storm.windowing.TupleWindow;
 
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, String>> {
 
@@ -31,9 +28,11 @@ public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, S
     public KeyValueState<String, String> state;
     private OutputCollector collector;
 
+    private transient Histogram histogram;
+    private transient Meter metric;
     private JsonEventResultsSerializer serializer;
 
-    private static final Logger LOG = LogManager.getLogger(WindowBolt.class);
+    //private static final Logger LOG = LogManager.getLogger(WindowBolt.class);
     //private AdminClient kafkaAdminClient;
 
     @Override
@@ -43,6 +42,8 @@ public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, S
         //this.kafkaAdminClient = createKafkaAdminClient();
         this.collector = collector;
         this.serializer = new JsonEventResultsSerializer();
+        histogram = context.registerHistogram("windowLatencyInMilliseconds");
+        metric = context.registerMeter("windowThroughput");
     }
 
     @Override
@@ -52,7 +53,10 @@ public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, S
 
     @Override
     public void execute(TupleWindow window) {
+
         //LOG.info("Window Processing Setup\n");
+        double eventsLatencyAverage = 0;
+        long size = 0;
 
         Map<String, Event> eventMap = new HashMap<>();
         Map<String, Tuple> eventTuples = new HashMap<>();
@@ -68,6 +72,8 @@ public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, S
                 if(event.isAfter(eventMap.get(key))){
                     eventMap.put(key, event);
                     eventTuples.put(key, tuple);
+                } else {
+                    collector.ack(tuple);
                 }
             } else {
                 eventMap.put(key, event);
@@ -97,11 +103,13 @@ public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, S
                 throw new RuntimeException(e);
             }
 
+
             EventResults results = new EventResults();
 
             results.setId(key);
             results.setPrice(event.getLastTradePrice());
-            results.setTimeStamp(event.getTimeOfLastUpdate());
+            results.setTime(event.getTimeOfLastUpdate());
+            results.setDate(event.getDateOfLastTrade());
 
             computeEMA(event, results, previousResults);
             computeSMA(event, results, previousResults);
@@ -124,19 +132,30 @@ public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, S
 //                throw new RuntimeException(e);
 //            }
 
+            long tupleProcessingTime = (long)tuple.getValueByField("processingTime");
             try {
                 collector.emit(
                         tuple,
                         new Values(
                                 results.getId(),
                                 objectMapper.writeValueAsString(results),
-                                tuple.getValueByField("processingTime")));
+                                tupleProcessingTime));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
 
             collector.ack(tuple);
+            if(tupleProcessingTime != 0){
+                long windowEventLatency = System.currentTimeMillis() - tupleProcessingTime;
+                eventsLatencyAverage = (eventsLatencyAverage * size + windowEventLatency) / (size + 1);
+                size++;
+            }
         }
+        if(eventsLatencyAverage != 0 && tuples.size() > 0){
+            histogram.update((long)eventsLatencyAverage);
+            metric.mark((long)(tuples.size()/(eventsLatencyAverage/1000)));
+        }
+
     }
 
     @Override
@@ -145,9 +164,12 @@ public class WindowBolt extends BaseStatefulWindowedBolt<KeyValueState<String, S
         declarer.declare(new Fields("key", "value", "processingTime"));
     }
 
+
+
     @Override
     public void cleanup() {
         super.cleanup();
+
         //kafkaAdminClient.close();
     }
 

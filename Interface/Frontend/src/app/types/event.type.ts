@@ -5,5 +5,6 @@ export interface StockEvent {
   ema100: number;
   sma2: number;
   breakoutPattern: string;
-  timeStamp: string;
+  time: string;
+  date: string;
 }

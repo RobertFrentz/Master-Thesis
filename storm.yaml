@@ -1,5 +1,8 @@
 storm.zookeeper.servers: [zookeeper]
 nimbus.seeds: [nimbus]
+# worker.heap.memory.mb: 1500
+# topology.component.resources.onheap.memory.mb: 350
+# topology.stats.sample.rate: 0.005
 storm.log.dir: "/logs"
 storm.local.dir: "/data"
 storm.metrics.reporters:
@@ -12,7 +15,9 @@ storm.metrics.reporters:
     report.period.units: "SECONDS"
     graphite.host: "graphite"
     graphite.port: 2003
-storm.daemon.metrics.reporter.plugins:
-    - "org.apache.storm.daemon.metrics.reporters.CsvPreparableReporter"
-storm.metrics.reporter.csv.file.location: "metrics.csv"
-storm.metrics.reporter.csv.delimiter: ","
+# storm.daemon.metrics.reporter.plugins:
+#     - "org.apache.storm.daemon.metrics.reporters.CsvPreparableReporter"
+# storm.daemon.metrics.reporter.plugin.rate.unit: "SECONDS"
+# storm.daemon.metrics.reporter.plugin.rate: "30"
+# storm.metrics.reporter.csv.file.location: "metrics.csv"
+# storm.metrics.reporter.csv.delimiter: ","

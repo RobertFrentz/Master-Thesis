@@ -12,12 +12,12 @@ public class KafkaRecordTranslator implements RecordTranslator<String, String> {
 
     @Override
     public List<Object> apply(ConsumerRecord<String, String> consumerRecord) {
-        return new Values(consumerRecord.key(), consumerRecord.value(), getMessageId());
+        return new Values(consumerRecord.key(), consumerRecord.value(), consumerRecord.timestamp(), System.currentTimeMillis(), getMessageId());
     }
 
     @Override
     public Fields getFieldsFor(String s) {
-        return new Fields("key", "value", "msgid");
+        return new Fields("key", "value", "timeStamp", "processingTime","msgid");
     }
 
     private Long getMessageId(){

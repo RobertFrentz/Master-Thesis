@@ -18,8 +18,6 @@ import java.util.*;
 public class KafkaWebSocketHandler extends TextWebSocketHandler {
     private final KafkaConsumer<String, String> kafkaConsumer;
 
-    private final ObjectMapper mapper = new ObjectMapper();
-
     private final Map<WebSocketSession, List<String>> sessions = new HashMap<>();
 
     public KafkaWebSocketHandler() {

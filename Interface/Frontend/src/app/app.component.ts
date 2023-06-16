@@ -181,7 +181,8 @@ export class AppComponent {
       ema100: msg.ema100,
       sma2: msg.sma2,
       breakoutPattern: msg.breakoutPattern,
-      timeStamp: msg.timeStamp,
+      time: msg.time,
+      date: msg.date
     };
 
     console.log(event);
@@ -197,7 +198,7 @@ export class AppComponent {
       this.charts.set(event.id, chartData);
 
       this.breakoutPatterns.push({
-        name: event.timeStamp,
+        name: event.time,
         value: this.currentBreakoutPattern,
       });
     } else {
@@ -206,7 +207,7 @@ export class AppComponent {
 
       this.charts.set(event.id, chartData);
       this.breakoutPatterns.push({
-        name: event.timeStamp,
+        name: event.time,
         value: this.currentBreakoutPattern,
       });
     }
@@ -218,22 +219,22 @@ export class AppComponent {
 
   private updateValues(chartData: Data[], event: StockEvent): Data[] {
     chartData[0].series.push({
-      name: event.timeStamp,
+      name: event.time,
       value: `${event.price}`,
     });
 
     chartData[1].series.push({
-      name: event.timeStamp,
+      name: event.time,
       value: `${event.ema38}`,
     });
 
     chartData[2].series.push({
-      name: event.timeStamp,
+      name: event.time,
       value: `${event.ema100}`,
     });
 
     chartData[3].series.push({
-      name: event.timeStamp,
+      name: event.time,
       value: `${event.sma2}`,
     });
 
@@ -244,20 +245,20 @@ export class AppComponent {
     const dummyEvents = getDummyEvents();
 
     const prices = dummyEvents.map((event) => {
-      return { name: event.timeStamp, value: event.price };
+      return { name: event.time, value: event.price };
     });
     const ema38 = dummyEvents.map((event) => {
-      return { name: event.timeStamp, value: event.ema38 };
+      return { name: event.time, value: event.ema38 };
     });
     const ema100 = dummyEvents.map((event) => {
-      return { name: event.timeStamp, value: event.ema100 };
+      return { name: event.time, value: event.ema100 };
     });
     const sma2 = dummyEvents.map((event) => {
-      return { name: event.timeStamp, value: event.sma2 };
+      return { name: event.time, value: event.sma2 };
     });
 
     this.breakoutPatterns = dummyEvents.map((event) => {
-      return { name: event.timeStamp, value: event.breakoutPattern };
+      return { name: event.time, value: event.breakoutPattern };
     });
 
     console.log(prices);
