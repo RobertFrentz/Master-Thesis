@@ -239,13 +239,15 @@ public class StockEventsKafkaProducer {
                     //System.out.println("Throughput local " + throughputLocal);
 //                    throughput.set(throughputLocal);
 //                    throughputSize.set(throughputSizeLocal + 1);
-
+ //                   long size = 0;
                     for (ConsumerRecord<String, String> record : records) {
                         String key = getIdFrom(record.value());
+                        System.out.println("Here key: " + key);
                         Long millis;
 
                         if(benchmark.containsKey(key)){
-                            System.out.println("Found " + key);
+                           // size++;
+                            //System.out.println("Found " + key);
                             millis = benchmark.get(key);
                         } else{
                             continue;
@@ -260,7 +262,7 @@ public class StockEventsKafkaProducer {
 //                        latencySizeLocal++;
                         benchmark.remove(key);
                     }
-
+//                    meter.mark(size);
 //                    latency.set(latencyAverage);
 //                    latencySize.set(latencySizeLocal);
 

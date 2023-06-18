@@ -1,5 +1,6 @@
 package topology;
 
+import bolt.ProcessingBolt;
 import bolt.WindowBolt;
 import domain.JsonEventDeserializer;
 import helper.KafkaRecordTranslator;
@@ -82,13 +83,19 @@ public class KafkaTopology {
                                 .withTumblingWindow(BaseWindowedBolt.Duration.seconds(options.windowDuration))
                                 .withMessageIdField("msgid")
                                 .withTimestampField("timeStamp")
-                                .withLag(BaseWindowedBolt.Duration.seconds(1)),
+                                .withLag(BaseWindowedBolt.Duration.seconds(2)))
+//                        options.numOfExecutorsForWindowBolt)
+                .shuffleGrouping("kafka-spout");
+//                .setNumTasks(options.numOfTasksForWindowBolt);
+
+        builder.setBolt("process-bolt",
+                        new ProcessingBolt(),
                         options.numOfExecutorsForWindowBolt)
-                .shuffleGrouping("kafka-spout")
+                .shuffleGrouping("window-bolt")
                 .setNumTasks(options.numOfTasksForWindowBolt);
 
         builder.setBolt("kafka-bolt", kafkaBolt, options.numOfExecutorsForKafkaBolt)
-                .shuffleGrouping("window-bolt")
+                .shuffleGrouping("process-bolt")
                 .setNumTasks(options.numOfTasksForKafkaBolt);
 
         // Submit the Topology
@@ -105,7 +112,7 @@ public class KafkaTopology {
 //        config.put(Config.TOPOLOGY_TRANSFER_BATCH_SIZE, 1000);
         //config.put(Config.TOPOLOGY_BATCH_FLUSH_INTERVAL_MILLIS, 1000);
         config.put(Config.TOPOLOGY_PRODUCER_BATCH_SIZE, 100);
-        config.put(Config.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, 131072);
+        config.put(Config.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, 65536);
 //        int topology_executor_receive_buffer_size = 32768; // intra-worker messaging, default: 32768
 //        int topology_transfer_buffer_size = 2048; // inter-worker messaging, default: 1000
 //        int topology_producer_batch_size = 10; // intra-worker batch, default: 1
