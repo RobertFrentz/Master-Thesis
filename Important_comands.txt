@@ -96,7 +96,7 @@ FLINK:
 	
 	docker run -d --name=taskmanager1 --network stock-network -p 9250:9249 --env FLINK_PROPERTIES="jobmanager.rpc.address: jobmanager" flink:1.16.1-scala_2.12 taskmanager
 	
-	./bin/flink run StockMarketApp-1.0-SNAPSHOT.jar --window-time=300 --parallelism-kafka-source=1 --parallelism-window=4 --parallelism-kafka-sink=4 --brokerUrl=kafka:9092
+	./bin/flink run StockMarketApp-1.0-SNAPSHOT.jar --window-time=300 --parallelism-kafka-source=1 --parallelism-window=1 --parallelism-kafka-sink=1 --brokerUrl=kafka:9092
 
 	docker cp C:\Master-Thesis\StockMarketAppFlink\target\StockMarketApp-1.0-SNAPSHOT.jar jobmanager:/opt/flink/StockMarketApp-1.0-SNAPSHOT.jar
 	

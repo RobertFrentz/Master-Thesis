@@ -14,6 +14,7 @@ export function getDummyEvents(): StockEvent[] {
       time: new Date(
         new Date().getDate() + Math.random() * 100
       ).toISOString(),
+      date: new Date(new Date().getDate() + Math.random() * 100).toDateString()
     };
 
     dummyData.push(stockEvent);

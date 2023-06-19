@@ -11,6 +11,8 @@ import { getDummyEvents } from './types/fake-data';
 })
 export class AppComponent {
   value: string = '';
+  startvalue = 40;
+  endvalue = 60;
   charts: Map<string, Data[]> = new Map();
   lines: any[] = [];
   currentChartData: Data[] = [];

@@ -176,8 +176,8 @@ public class StockEventsKafkaProducer {
         props.put(ConsumerConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, "600000");
 
         kafkaConsumer = new KafkaConsumer<>(props);
-        //String topic = "flink-output-topic";
-        String topic = "storm-output-topic";
+        String topic = "flink-output-topic";
+        //String topic = "storm-output-topic";
         TopicPartition topicPartition = new TopicPartition(topic, 0);
         //TopicPartition topicPartition1 = new TopicPartition(topic1, 0);
         Set<TopicPartition> partitions = new HashSet<>();

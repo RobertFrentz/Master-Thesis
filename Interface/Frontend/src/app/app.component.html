@@ -13,9 +13,19 @@
     </ng-container>
   </mat-chip-list>
 </div>
+<div class="charts-info">
+  <div class="trading-days">
+
+  </div>
+  <mat-slider min="20" step="10" max="100" color="accent" discrete="true" showTickMarks="true">
+    <input matSliderStartThumb [(ngModel)]="startvalue">
+    <input matSliderEndThumb [(ngModel)]="endvalue">
+</mat-slider>
+</div>
 <ngx-charts-line-chart
   *ngIf="charts.size > 0"
   [results]="currentChartData"
+  [autoScale]="true"
   [xAxis]="true"
   [yAxis]="true"
   [showXAxisLabel]="true"
@@ -34,6 +44,8 @@
   [maxXAxisTickLength]="12"
   [showRefLines]="true"
   [referenceLines]="lines"
+  [xScaleMin]="1"
+  [xScaleMax]="2"
 >
   <ng-template #seriesTooltipTemplate let-model="model">
     <div class="tooltip">
