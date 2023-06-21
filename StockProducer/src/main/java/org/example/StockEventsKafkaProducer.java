@@ -63,7 +63,7 @@ public class StockEventsKafkaProducer {
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put(ConsumerConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, "600000");
 
-        includeBenchmark();
+       // includeBenchmark();
 //        new Thread(() -> {
 //            MetricRegistry registry = new MetricRegistry();
 //
@@ -148,7 +148,7 @@ public class StockEventsKafkaProducer {
                         String regex = "^\\d\\d:(04|09|14|19|24|29|34|39|44|49|54|59).*";
                         if(event.getTimeOfLastUpdate().matches(regex)){
                             //System.out.println(event.id + "  " + event.timeOfLastUpdate);
-                            benchmark.put(event.id + " " + event.timeOfLastUpdate + " " + event.getDateOfLastTrade(), System.currentTimeMillis());
+                            //benchmark.put(event.id + " " + event.timeOfLastUpdate + " " + event.getDateOfLastTrade(), System.currentTimeMillis());
                         }
 
 

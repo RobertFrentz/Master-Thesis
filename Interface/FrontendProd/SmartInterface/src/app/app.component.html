@@ -1,0 +1,65 @@
+<div class="header">
+  <mat-form-field class="form-field">
+    <mat-label>Topic</mat-label>
+    <input matInput type="text" [(ngModel)]="value" />
+    <button *ngIf="value" matSuffix mat-icon-button (click)="value = ''">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+  <button mat-button id="subscribe-button"(click)="subscribeToTopic()">Subscribe</button>
+  <mat-chip-listbox class="chips-list">
+    <ng-container *ngFor="let chart of charts | keyvalue">
+      <mat-chip (click)="select(chart.key)">{{ chart.key }}</mat-chip>
+    </ng-container>
+  </mat-chip-listbox>
+  <!-- <mat-chip-list class="chips-list">
+    <ng-container *ngFor="let chart of charts | keyvalue">
+      <mat-chip (click)="select(chart.key)">{{ chart.key }}</mat-chip>
+    </ng-container>
+  </mat-chip-list> -->
+</div>
+<div class="charts-info">
+  <mat-chip-listbox class="trading-days">
+    <ng-container *ngFor="let tradingDay of tradingDays.get(currentTopic)">
+      <mat-chip (click)="selectDate(tradingDay)">{{ tradingDay }}</mat-chip>
+    </ng-container>
+  </mat-chip-listbox>
+  <mat-slider min="0" max="100">
+    <input matSliderStartThumb [(ngModel)]="startvalue" (dragEnd)="getValue()">
+    <input matSliderEndThumb [(ngModel)]="endvalue" (dragEnd)="getValue()">
+</mat-slider>
+</div>
+<ngx-charts-line-chart
+  *ngIf="charts.size > 0"
+  [results]="currentChartData"
+  [autoScale]="true"
+  [xAxis]="true"
+  [yAxis]="true"
+  [showXAxisLabel]="true"
+  [showYAxisLabel]="true"
+  [xAxisLabel]="'Timestamp'"
+  [yAxisLabel]="'Price'"
+  [gradient]="false"
+  [legend]="true"
+  [xAxis]="true"
+  [yAxis]="true"
+  [timeline]="false"
+  [tooltipDisabled]="false"
+  [view]="[1920, 800]"
+  [trimXAxisTicks]="true"
+  [trimYAxisTicks]="true"
+  [maxXAxisTickLength]="12"
+  [showRefLines]="true"
+  [referenceLines]="lines"
+  [xScaleMin]="1"
+  [xScaleMax]="2"
+>
+  <ng-template #seriesTooltipTemplate let-model="model">
+    <div class="tooltip">
+      <div *ngFor="let row of model">
+        {{ row.series + ": " + row.value }}
+      </div>
+      {{ getBreakoutPattern(model[0].name) }}
+    </div>
+  </ng-template>
+</ngx-charts-line-chart>

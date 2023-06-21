@@ -1,0 +1,91 @@
+version: '3'
+services:
+  zookeeper:
+    image: zookeeper:3.6.3
+    ports:
+      - 2181:2181
+    volumes:
+      - ./zookeeper/data:/data
+      - ./zookeeper/datalog:/datalog
+  kafka:
+    image: wurstmeister/kafka:2.13-2.8.0
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    environment:
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+	  - KAFKA_ADVERTISED_LISTENERS=INSIDE://kafka:9092,OUTSIDE://localhost:9094
+	  - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+	  - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
+    volumes:
+      - ./kafka/data:/var/lib/kafka/data
+  flink-jobmanager:
+    image: flink:1.16.0-scala_2.12
+    ports:
+      - 8081:8081
+	  - 9249:9249
+    expose:
+      - 6123
+    command: jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      - JOB_MANAGER_RPC_PORT=6123
+      - FLINK_REST_PORT=8081
+      - FLINK_PROPERTIES=metrics.reporter.graphite.class=org.apache.flink.metrics.graphite.GraphiteReporter
+      - METRICS_REPORTER_GRAPHITE_CLASS=org.apache.flink.metrics.graphite.GraphiteReporter
+      - METRICS_REPORTER_GRAPHITE_HOST=graphite
+      - METRICS_REPORTER_GRAPHITE_PORT=2003
+    volumes:
+      - ./flink/jobmanager:/opt/flink/jobmanager
+  flink-taskmanager:
+    image: flink:1.16.0-scala_2.12
+	ports:
+	  - 9250:9249
+    depends_on:
+      - flink-jobmanager
+    expose:
+      - 6121
+    command: taskmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      - JOB_MANAGER_RPC_PORT=6123
+	  - FLINK_PROPERTIES=metrics.reporter.graphite.class=org.apache.flink.metrics.graphite.GraphiteReporter
+	  - METRICS_REPORTER_GRAPHITE_CLASS=org.apache.flink.metrics.graphite.GraphiteReporter
+      - METRICS_REPORTER_GRAPHITE_HOST=graphite
+      - METRICS_REPORTER_GRAPHITE_PORT=2003
+    volumes:
+      - ./flink/taskmanager:/opt/flink/taskmanager
+  storm-nimbus:
+    image: storm
+    ports:
+      - 8080:8080
+    command: nimbus
+    environment:
+      - NIMBUS_HOST=storm-nimbus
+    volumes:
+      - ./storm/nimbus:/opt/storm/nimbus
+  storm-supervisor:
+    image: storm
+    depends_on:
+      - storm-nimbus
+    command: supervisor
+    environment:
+      - NIMBUS_SEEDS=storm-nimbus
+    volumes:
+      - ./storm/supervisor:/opt/storm/supervisor
+  graphite:
+    image: graphiteapp/graphite-statsd:1.1.6-9
+    ports:
+      - 80:80
+      - 2003:2003
+      - 8125:8125/udp
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 3000:3000
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - ./grafana/data:/var/lib/grafana

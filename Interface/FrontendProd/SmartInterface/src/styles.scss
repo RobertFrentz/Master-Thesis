@@ -4,7 +4,8 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 mat-slider{
-    transform: scale(1.5);
+    transform: scale(1.0);
+    width: 400px !important;
     margin-left: 100px;
     .mat-slider-thumb-container{
         .mat-slider-thumb{
